@@ -8,11 +8,12 @@ export type PricesInput = {
 };
 
 /**
- * Хранилище редактируемого контента.
- * Сейчас — mock в памяти сервера (mockRepo.ts). При подключении БД
- * достаточно написать новую реализацию этого интерфейса и подменить её в index.ts.
+ * Хранилище редактируемого контента: Postgres (dbRepo.ts) или, если база
+ * не настроена, mock в памяти сервера (mockRepo.ts). Выбор — в index.ts.
  */
 export interface ContentRepo {
+  /** демо-режим: данные в памяти, пропадут при перезапуске */
+  readonly demo: boolean;
   load(): Promise<SiteData>;
   /** создать или обновить мастер-класс (новый добавляется в конец) */
   saveMasterclass(mc: MasterclassRec): Promise<void>;
@@ -25,6 +26,6 @@ export interface ContentRepo {
   saveGallery(g: { categories: GalleryCategory[]; items: GalleryItem[] }): Promise<void>;
   saveReviews(r: ReviewRec[]): Promise<void>;
   saveSeo(s: Seo): Promise<void>;
-  /** вернуть исходные данные (только для mock) */
+  /** вернуть исходные данные (только в демо-режиме) */
   reset(): Promise<void>;
 }

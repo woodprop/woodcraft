@@ -23,14 +23,23 @@ export type Checked<T> = { ok: true; value: T } | { ok: false; errors: FieldErro
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 const DATE = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 const ID = /^[a-z0-9-]{1,60}$/;
-/** загруженная картинка (data URL) — не больше ~1,5 МБ */
+/** фото, загруженное в Vercel Blob (src/lib/admin/storage.ts) */
+const BLOB_SRC = /^https:\/\/[a-z0-9]+\.public\.blob\.vercel-storage\.com\/uploads\/[\w-]+\.(jpg|png|webp)$/i;
+/** загруженная картинка в демо-режиме (data URL) — не больше ~1,5 МБ */
 const MAX_DATA_URL = 2_000_000;
+
+/** allowDataUrl — принимать фото в виде data URL (только в демо-режиме, без Blob) */
+export type CheckOptions = { allowDataUrl: boolean };
 
 type Rec = Record<string, unknown>;
 const isRec = (v: unknown): v is Rec => typeof v === "object" && v !== null && !Array.isArray(v);
 
 class Checker {
   errors: FieldErrors = {};
+  opts: CheckOptions;
+  constructor(opts: CheckOptions = { allowDataUrl: false }) {
+    this.opts = opts;
+  }
   fail(path: string, msg: string) {
     this.errors[path] ??= msg;
   }
@@ -82,8 +91,10 @@ class Checker {
     const o = this.obj(v, path);
     const src = typeof o.src === "string" ? o.src : "";
     const local = /^\/images\/[\w\-/]+\.(jpe?g|png|webp|avif)$/i.test(src) && !src.includes("..");
-    const uploaded = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(src) && src.length <= MAX_DATA_URL;
-    if (!local && !uploaded) this.fail(path, "Выберите фото");
+    const blob = BLOB_SRC.test(src);
+    const dataUrl =
+      this.opts.allowDataUrl && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(src) && src.length <= MAX_DATA_URL;
+    if (!local && !blob && !dataUrl) this.fail(path, "Выберите фото");
     const pos = typeof o.pos === "string" && /^\d{1,3}% \d{1,3}%$/.test(o.pos) ? o.pos : undefined;
     const posMobile = typeof o.posMobile === "string" && /^\d{1,3}% \d{1,3}%$/.test(o.posMobile) ? o.posMobile : undefined;
     return { src, alt: alt.slice(0, 200), ...(pos && { pos }), ...(posMobile && { posMobile }) };
@@ -111,8 +122,8 @@ class Checker {
 
 /* ---------- Мастер-классы и семейные занятия ---------- */
 
-export function checkMasterclass(v: unknown): Checked<MasterclassRec> {
-  const c = new Checker();
+export function checkMasterclass(v: unknown, opts: CheckOptions): Checked<MasterclassRec> {
+  const c = new Checker(opts);
   const o = c.obj(v, "");
   const title = c.str(o.title, "title", { max: 80, label: "название" });
   const capacity = c.num(o.capacity, "capacity", { min: 1, max: 20, label: "размер группы" });
@@ -226,8 +237,8 @@ export function checkCoworking(v: unknown): Checked<CoworkingSchedule> {
 
 /* ---------- Галерея ---------- */
 
-export function checkGallery(v: unknown): Checked<{ categories: GalleryCategory[]; items: GalleryItem[] }> {
-  const c = new Checker();
+export function checkGallery(v: unknown, opts: CheckOptions): Checked<{ categories: GalleryCategory[]; items: GalleryItem[] }> {
+  const c = new Checker(opts);
   const o = c.obj(v, "");
   const categories = c.arr(o.categories, "categories", 20).map((raw, i) => {
     const g = c.obj(raw, `categories.${i}`);

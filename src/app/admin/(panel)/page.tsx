@@ -37,15 +37,17 @@ async function DashboardContent() {
         </div>
       </div>
 
-      <div className={s.notice}>
-        <IInfo />
-        <div>
-          <p>
-            <b>Демо-режим.</b> База данных пока не подключена: изменения хранятся в памяти сервера и пропадут после его перезапуска.
-          </p>
-          <ResetDemo />
+      {repo.demo && (
+        <div className={s.notice}>
+          <IInfo />
+          <div>
+            <p>
+              <b>Демо-режим.</b> База данных пока не подключена: изменения хранятся в памяти сервера и пропадут после его перезапуска.
+            </p>
+            <ResetDemo />
+          </div>
         </div>
-      </div>
+      )}
 
       <div className={s.stats}>
         <Link className={s.stat} href="/admin/events">

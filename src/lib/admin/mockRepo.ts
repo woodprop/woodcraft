@@ -1,24 +1,8 @@
 import "server-only";
 
-import masterclasses from "@/content/ru/masterclasses.json";
-import gallery from "@/content/ru/gallery.json";
-import reviews from "@/content/ru/reviews.json";
-import settings from "@/content/ru/settings.json";
 import type { SiteData } from "@/lib/types";
 import type { ContentRepo } from "./repo";
-
-function seed(): SiteData {
-  return structuredClone({
-    masterclasses,
-    tariffs: settings.tariffs,
-    family: settings.family,
-    certificateSums: settings.certificateSums,
-    coworking: settings.coworking,
-    gallery,
-    reviews,
-    seo: settings.seo,
-  });
-}
+import { seedData as seed } from "./seedData";
 
 // Держим данные в globalThis: модули в dev перезагружаются (HMR),
 // а изменения из админки должны жить до перезапуска сервера.
@@ -28,6 +12,7 @@ const db = () => (g.__woodcraftDb ??= seed());
 const clone = <T,>(v: T): T => structuredClone(v);
 
 export const mockRepo: ContentRepo = {
+  demo: true,
   async load() {
     return clone(db());
   },

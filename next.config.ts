@@ -8,6 +8,12 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   images: {
     formats: ["image/avif", "image/webp"],
+    // фото, загруженные через админку, лежат в Vercel Blob
+    remotePatterns: [{ protocol: "https", hostname: "*.public.blob.vercel-storage.com", pathname: "/uploads/**" }],
+  },
+  experimental: {
+    // загрузка фото и сохранение форм с фото (в демо-режиме — data URL) идут через Server Actions
+    serverActions: { bodySizeLimit: "3mb" },
   },
 };
 

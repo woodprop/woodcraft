@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { repo } from "@/lib/admin";
 import { requireAdmin } from "@/lib/admin/auth";
 import { ADMIN_COOKIE, adminPassword, sessionToken } from "@/lib/admin/session";
+import { storeImage, type Upload } from "@/lib/admin/storage";
 import {
   checkCoworking,
   checkFamily,
@@ -30,10 +31,18 @@ function published() {
 
 async function save<T>(checked: Checked<T>, write: (v: T) => Promise<void>): Promise<SaveResult> {
   if (!checked.ok) return { ok: false, errors: checked.errors };
-  await write(checked.value);
+  try {
+    await write(checked.value);
+  } catch (e) {
+    console.error("Ошибка сохранения в БД:", e);
+    return { ok: false, errors: {}, message: "Не удалось сохранить: база данных недоступна. Попробуйте ещё раз через минуту" };
+  }
   published();
   return { ok: true };
 }
+
+/** фото с сайта — только из public/images, Blob или (в демо-режиме) data URL */
+const checkOpts = () => ({ allowDataUrl: repo.demo });
 
 /* ---------- Вход ---------- */
 
@@ -66,7 +75,7 @@ export async function logout() {
 
 export async function saveMasterclass(input: unknown): Promise<SaveResult> {
   await requireAdmin();
-  return save(checkMasterclass(input), (mc) => repo.saveMasterclass(mc));
+  return save(checkMasterclass(input, checkOpts()), (mc) => repo.saveMasterclass(mc));
 }
 
 export async function deleteMasterclass(id: string) {
@@ -113,7 +122,21 @@ export async function saveCoworking(input: unknown): Promise<SaveResult> {
 
 export async function saveGallery(input: unknown): Promise<SaveResult> {
   await requireAdmin();
-  return save(checkGallery(input), (g) => repo.saveGallery(g));
+  return save(checkGallery(input, checkOpts()), (g) => repo.saveGallery(g));
+}
+
+/* ---------- Фото ---------- */
+
+export async function uploadImage(form: FormData): Promise<Upload> {
+  await requireAdmin();
+  const file = form.get("file");
+  if (!(file instanceof File)) return { ok: false, message: "Файл не получен" };
+  try {
+    return await storeImage(file, repo.demo);
+  } catch (e) {
+    console.error("Ошибка загрузки фото:", e);
+    return { ok: false, message: "Не удалось загрузить фото. Попробуйте ещё раз" };
+  }
 }
 
 export async function saveReviews(input: unknown): Promise<SaveResult> {
@@ -129,6 +152,7 @@ export async function saveSeo(input: unknown): Promise<SaveResult> {
 /** Демо-режим: вернуть все данные к исходным из JSON */
 export async function resetDemo() {
   await requireAdmin();
+  if (!repo.demo) return;
   await repo.reset();
   published();
 }

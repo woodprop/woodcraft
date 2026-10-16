@@ -2,26 +2,29 @@
 
 import Image from "next/image";
 import { useRef, useState, type MouseEvent } from "react";
+import { uploadImage } from "@/app/admin/actions";
 import type { Img } from "@/lib/types";
 import { IClose, IImage, IUpload } from "./icons";
 import { useToast } from "./Toast";
 import s from "./admin.module.css";
 
-/** Сжимаем загруженное фото в браузере: длинная сторона до 1600px, JPEG */
-async function compress(file: File): Promise<string> {
+/** Сжимаем фото в браузере перед загрузкой: длинная сторона до 1600px, JPEG до ~1 МБ */
+async function compress(file: File): Promise<Blob> {
   const bmp = await createImageBitmap(file);
   const k = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
   const canvas = document.createElement("canvas");
   canvas.width = Math.round(bmp.width * k);
   canvas.height = Math.round(bmp.height * k);
   canvas.getContext("2d")!.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+  const encode = (q: number) =>
+    new Promise<Blob>((ok, fail) => canvas.toBlob((b) => (b ? ok(b) : fail(new Error("toBlob"))), "image/jpeg", q));
   let q = 0.85;
-  let url = canvas.toDataURL("image/jpeg", q);
-  while (url.length > 1_500_000 && q > 0.4) {
+  let blob = await encode(q);
+  while (blob.size > 1_000_000 && q > 0.4) {
     q -= 0.15;
-    url = canvas.toDataURL("image/jpeg", q);
+    blob = await encode(q);
   }
-  return url;
+  return blob;
 }
 
 function parsePos(pos?: string) {
@@ -70,9 +73,19 @@ export function PhotoPicker({
     if (!f.type.startsWith("image/")) return toast("Это не изображение — выберите файл JPG или PNG", true);
     setBusy(true);
     try {
-      onChange({ src: await compress(f), alt: value.alt });
+      let blob: Blob;
+      try {
+        blob = await compress(f);
+      } catch {
+        return toast("Не получилось прочитать фото. Попробуйте другой файл", true);
+      }
+      const form = new FormData();
+      form.append("file", blob, "photo.jpg");
+      const res = await uploadImage(form);
+      if (res.ok) onChange({ src: res.src, alt: value.alt });
+      else toast(res.message, true);
     } catch {
-      toast("Не получилось прочитать фото. Попробуйте другой файл", true);
+      toast("Не удалось загрузить фото. Проверьте соединение и попробуйте ещё раз", true);
     } finally {
       setBusy(false);
       if (file.current) file.current.value = "";
