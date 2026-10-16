@@ -15,6 +15,13 @@
       "when": 1792161132554,
       "tag": "0001_uploads",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792175430001,
+      "tag": "0002_telegram_bot",
+      "breakpoints": true
     }
   ]
 }

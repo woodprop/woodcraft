@@ -2,14 +2,12 @@
 
 import { useState } from "react";
 import { saveReviews } from "@/app/admin/actions";
-import { uid } from "@/lib/admin/drafts";
+import { REVIEW_FORMATS as FORMATS, uid } from "@/lib/admin/drafts";
 import type { ReviewRec } from "@/lib/types";
 import { IDown, IEdit, IEye, IEyeOff, IPlus, ITrash, IUp } from "./icons";
 import { Badge, IconButton, PageHead, SelectField, TextField } from "./ui";
 import { SaveBar, useEditor } from "./useEditor";
 import s from "./admin.module.css";
-
-const FORMATS = ["Мастер-класс", "Коворкинг", "Для семьи", "Корпоратив", "Сертификат"];
 
 export function ReviewsEditor({ initial }: { initial: ReviewRec[] }) {
   const ed = useEditor(initial, saveReviews);

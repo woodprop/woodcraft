@@ -59,6 +59,41 @@ npm run db:seed        # если база не пустая — ничего н
 
 Supabase Free ставит проект на паузу после недели без запросов к базе. Сайт при этом продолжает показывать последние данные из кэша, а админка — сообщение об ошибке. Разморозить: панель Supabase → проект → Resume project.
 
+## Telegram-бот
+
+Бот правит те же данные, что и `/admin`, с телефона: расписание мастер-классов (даты, свободные места, скрыть/показать), галерею (прислать фото → категория → название), отзывы, цены, часы работы коворкинга и закрытые даты. Команда `/undo` отменяет последнее изменение, в том числе сделанное в веб-админке. Тексты описаний, SEO, тарифы и категории галереи по-прежнему правятся в `/admin`.
+
+Пускает только Telegram ID из `TELEGRAM_ADMIN_IDS`, права у всех одинаковые. Без базы (демо-режим) бот тоже работает, но и данные, и шаги диалога живут в памяти сервера — на Vercel так пользоваться нельзя.
+
+Подключение боевого бота:
+
+1. В @BotFather создать бота (`/newbot`), взять токен.
+2. В Vercel → Settings → Environment Variables задать `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET` и `TELEGRAM_ADMIN_IDS` (см. `.env.example`), передеплоить.
+3. Применить миграцию с таблицами бота: `npm run db:migrate`.
+4. Зарегистрировать webhook и меню команд — один раз после деплоя (и после смены адреса сайта или секрета):
+
+```bash
+# в PowerShell: $env:TELEGRAM_BOT_TOKEN="…"; $env:TELEGRAM_WEBHOOK_SECRET="…"
+npm run bot:setup -- https://адрес-сайта
+```
+
+Переменные можно не задавать вручную, если они есть в `.env.production.local` (`vercel env pull .env.production.local --environment=production`).
+
+Свой Telegram ID бот покажет сам: напишите ему, не будучи в списке админов.
+
+Локальная разработка — с **отдельным** dev-ботом (боевой нельзя: он работает через webhook). Его токен, секрет и свой ID — в `.env.development.local` (Next.js читает его раньше `.env.local`). Чтобы не менять боевые данные, там же задайте пустые `POSTGRES_URL=`, `POSTGRES_URL_NON_POOLING=`, `BLOB_STORE_ID=`, `BLOB_READ_WRITE_TOKEN=` — сайт и бот уйдут в демо-режим. Затем в двух терминалах:
+
+```bash
+npm run dev
+npm run bot:dev   # забирает сообщения dev-бота и пересылает их в http://localhost:3000/api/telegram
+```
+
+| Что | Где |
+| --- | --- |
+| Webhook | `src/app/api/telegram/route.ts` |
+| Бот: меню и отмена (`menu.ts`), разделы (`schedule.ts`, `gallery.ts`, `reviews.ts`, `prices.ts`, `coworking.ts`) | `src/lib/bot/` |
+| Шаг диалога и защита от повторов (таблицы `bot_sessions`, `bot_updates`) | `src/lib/bot/state.ts` |
+
 ## Модальные окна
 
 У каждой модалки свой адрес — ссылку можно отправить клиенту:

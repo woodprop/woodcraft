@@ -7,7 +7,7 @@
 
 import { desc, eq, sql } from "drizzle-orm";
 import type { Db } from "@/lib/db/client";
-import { galleryItems, masterclassSessions, masterclasses, reviews, settings, uploads, type Settings } from "@/lib/db/schema";
+import { galleryItems, masterclassSessions, masterclasses, reviews, settings, snapshots, uploads, type Settings } from "@/lib/db/schema";
 import type { GalleryItem, Img, MasterclassRec, ReviewRec, Session, SiteData } from "@/lib/types";
 import type { ContentRepo } from "./repo";
 
@@ -239,6 +239,36 @@ export function createDbRepo(db: Db): ContentRepo {
 
     async addUpload(url) {
       await db.insert(uploads).values({ url }).onConflictDoNothing();
+    },
+
+    // Последняя копия в snapshots — данные после последнего изменения, предпоследняя — до него.
+    // Отмена возвращает предпоследнюю и удаляет последнюю, так что повторная отмена идёт дальше в прошлое.
+    // Если данные менялись в обход админки (например, db:seed), последняя копия с ними не совпадает — отменять нельзя.
+
+    async lastChange() {
+      const current = JSON.stringify(await loadSiteData(db));
+      const [r] = rowsOf<{ id: number; at: string | Date; current: boolean; prev: number | null; changed: (keyof SiteData)[] }>(
+        await db.execute(sql`select a.id, a.created_at as at, a.data = ${current}::jsonb as current, b.id as prev,
+          (select coalesce(json_agg(k), '[]') from jsonb_object_keys(a.data) k where a.data -> k is distinct from b.data -> k) as changed
+          from snapshots a
+          left join lateral (select id, data from snapshots where id < a.id order by id desc limit 1) b on true
+          order by a.id desc limit 1`),
+      );
+      if (!r || !r.current || r.prev === null) return null;
+      return { id: r.id, at: new Date(r.at).toISOString(), sections: r.changed };
+    },
+
+    async undo(id) {
+      return db.transaction(async (tx) => {
+        const current = JSON.stringify(await loadSiteData(tx));
+        const rows = rowsOf<{ id: number; data: SiteData; current: boolean }>(
+          await tx.execute(sql`select id, data, data = ${current}::jsonb as current from snapshots order by id desc limit 2 for update`),
+        );
+        if (rows.length < 2 || rows[0].id !== id || !rows[0].current) return false;
+        await importSiteData(tx, rows[1].data);
+        await tx.delete(snapshots).where(eq(snapshots.id, id));
+        return true;
+      });
     },
 
     async reset() {

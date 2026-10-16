@@ -9,11 +9,14 @@
     "lint": "eslint",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:seed": "tsx scripts/seed.ts"
+    "db:seed": "tsx scripts/seed.ts",
+    "bot:setup": "tsx scripts/bot-setup.ts",
+    "bot:dev": "tsx scripts/bot-dev.ts"
   },
   "dependencies": {
     "@vercel/blob": "^2.8.2",
     "drizzle-orm": "^0.45.4",
+    "grammy": "^1.46.0",
     "next": "16.4.1",
     "postgres": "^3.4.9",
     "react": "19.3.0",

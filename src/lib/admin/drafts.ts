@@ -57,6 +57,9 @@ export function slugify(title: string, taken: string[] = []) {
   return id;
 }
 
+/** Форматы, которые можно выбрать в отзыве */
+export const REVIEW_FORMATS = ["Мастер-класс", "Коворкинг", "Для семьи", "Корпоратив", "Сертификат"];
+
 /** Короткий случайный идентификатор для новых записей */
 export const uid = (prefix: string) => `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
 

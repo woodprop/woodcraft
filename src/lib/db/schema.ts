@@ -3,7 +3,7 @@
 // Всё, что сохраняется целиком (тарифы, расписание коворкинга, SEO…), — jsonb в settings.
 // RLS включён без политик: публичные ключи Supabase не видят ничего, доступ только с сервера.
 
-import { boolean, doublePrecision, integer, jsonb, pgTable, primaryKey, serial, text, time, timestamp } from "drizzle-orm/pg-core";
+import { bigint, boolean, doublePrecision, integer, jsonb, pgTable, primaryKey, serial, text, time, timestamp } from "drizzle-orm/pg-core";
 import type { CoworkingSchedule, Family, GalleryCategory, Img, Option, Seo, SiteData, Tariff } from "../types";
 
 export const masterclasses = pgTable("masterclasses", {
@@ -79,4 +79,17 @@ export const snapshots = pgTable("snapshots", {
   id: serial("id").primaryKey(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   data: jsonb("data").$type<SiteData>().notNull(),
+}).enableRLS();
+
+/** Telegram-бот: на каком шаге диалога админ (state — см. src/lib/bot/state.ts) */
+export const botSessions = pgTable("bot_sessions", {
+  chatId: bigint("chat_id", { mode: "number" }).primaryKey(),
+  state: jsonb("state"),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}).enableRLS();
+
+/** Telegram-бот: недавно обработанные сообщения (хранятся сутки) — Telegram повторяет сообщение, если ответ задержался */
+export const botUpdates = pgTable("bot_updates", {
+  updateId: bigint("update_id", { mode: "number" }).primaryKey(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }).enableRLS();
