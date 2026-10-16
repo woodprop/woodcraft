@@ -1,0 +1,56 @@
+.how {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.hs {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 22px;
+  border-top: 2px solid var(--acc);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.n {
+  font: 600 40px/1 var(--f-display);
+  color: var(--acc);
+  letter-spacing: -0.03em;
+}
+
+@media (max-width: 1099px) {
+  .how {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 36px 20px;
+  }
+}
+
+/* телефон: компактные строки «номер слева — текст справа» */
+@media (max-width: 640px) {
+  .how {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .hs {
+    flex-direction: row;
+    gap: 18px;
+    padding: 18px 0 20px;
+    border-top-width: 1.5px;
+  }
+
+  .n {
+    font-size: 28px;
+    min-width: 44px;
+  }
+
+  .body {
+    gap: 8px;
+  }
+}

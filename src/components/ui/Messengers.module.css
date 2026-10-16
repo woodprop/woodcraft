@@ -1,0 +1,45 @@
+/* три кнопки всегда в ряд, равной ширины — как в макете */
+.msgr {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.msgr :global(.btn) {
+  min-width: 0;
+  padding: 6px 14px;
+  font-size: 15px;
+  gap: 8px;
+}
+
+@media (max-width: 760px) {
+  .msgr :global(.btn) {
+    padding: 6px;
+    font-size: 14px;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .msgr :global(.btn) svg {
+    width: 18px;
+    height: 18px;
+    flex: none;
+  }
+}
+
+@media (max-width: 400px) {
+  .msgr {
+    gap: 6px;
+  }
+
+  .msgr :global(.btn) {
+    font-size: 13px;
+    gap: 4px;
+    padding: 6px 4px;
+  }
+
+  .msgr :global(.btn) svg {
+    width: 16px;
+    height: 16px;
+  }
+}

@@ -1,69 +1,47 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import { Suspense } from "react";
+import { Footer } from "@/components/layout/Footer";
+import { ModalHost } from "@/components/modals/ModalHost";
+import { BookingProvider } from "@/components/providers/BookingProvider";
+import { Coworking } from "@/components/sections/Coworking";
+import { Equipment } from "@/components/sections/Equipment";
+import { Family } from "@/components/sections/Family";
+import { Faq } from "@/components/sections/Faq";
+import { Formats } from "@/components/sections/Formats";
+import { Gallery } from "@/components/sections/Gallery";
+import { GiftsCorporate } from "@/components/sections/GiftsCorporate";
+import { Hero } from "@/components/sections/Hero";
+import { How } from "@/components/sections/How";
+import { Masterclasses } from "@/components/sections/Masterclasses";
+import { Masters } from "@/components/sections/Masters";
+import { Request } from "@/components/sections/Request";
+import { Reviews } from "@/components/sections/Reviews";
+import { Why } from "@/components/sections/Why";
+import { getContent } from "@/lib/content";
 
-export default function Home() {
+export default async function Home() {
+  const c = await getContent("ru");
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.tsx</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    <BookingProvider>
+      <main className="page">
+        <Hero contacts={c.contacts} />
+        <Formats />
+        <Masterclasses items={c.masterclasses} />
+        <Why />
+        <Coworking tariffs={c.tariffs} />
+        <Equipment />
+        <Family />
+        <GiftsCorporate />
+        <Gallery gallery={c.gallery} />
+        <Reviews items={c.reviews} />
+        <Masters items={c.masters} />
+        <How />
+        <Faq items={c.faq} contacts={c.contacts} />
+        <Request contacts={c.contacts} />
+        <Footer contacts={c.contacts} />
       </main>
-    </div>
+      <Suspense fallback={null}>
+        <ModalHost data={{ masterclasses: c.masterclasses, tariffs: c.tariffs, booking: c.booking, contacts: c.contacts }} />
+      </Suspense>
+    </BookingProvider>
   );
 }

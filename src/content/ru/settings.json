@@ -1,0 +1,54 @@
+{
+  "contacts": {
+    "city": "Тбилиси",
+    "address": "[улица, дом]",
+    "phone": "[телефон]",
+    "phoneHref": "",
+    "whatsapp": "",
+    "telegram": "",
+    "facebook": "",
+    "instagram": "",
+    "mapUrl": "",
+    "hours": { "weekdays": "[12:00–22:00]", "weekends": "[10:00–20:00]" }
+  },
+  "tariffs": [
+    { "id": "1h", "label": "1 час", "price": 10, "desc": "Доделать деталь, распилить заготовку, пройти рейсмусом." },
+    { "id": "2h", "label": "2 часа", "price": 15, "desc": "Спокойный вечер над проектом после работы." },
+    { "id": "day", "label": "Весь день", "price": 35, "desc": "Для больших проектов — от стеллажа до обеденного стола.", "highlight": true }
+  ],
+  "booking": {
+    "coworkingTimes": ["10:00", "12:00", "14:00", "16:00", "18:00", "20:00"],
+    "coworkingDays": 7,
+    "familyProducts": [
+      { "id": "birdhouse", "label": "Скворечник", "price": 45 },
+      { "id": "feeder", "label": "Кормушка для птиц", "price": 45 },
+      { "id": "car", "label": "Деревянная машинка", "price": 45 }
+    ],
+    "familySessions": [
+      { "start": "2026-10-24T11:00", "end": "13:00", "seatsLeft": 3 },
+      { "start": "2026-11-01T11:00", "end": "13:00", "seatsLeft": 3 },
+      { "start": "2026-11-07T11:00", "end": "13:00", "seatsLeft": 3 }
+    ],
+    "familyPrice": 45,
+    "corporateSizes": [
+      { "id": "s", "label": "6–8", "hint": "Небольшая команда" },
+      { "id": "m", "label": "9–12", "hint": "Отдел" },
+      { "id": "l", "label": "13–15", "hint": "Максимум" }
+    ],
+    "corporateProducts": [
+      { "id": "logo", "label": "Доски с логотипом", "hint": "Каждому своя" },
+      { "id": "common", "label": "Общий проект", "hint": "Одна вещь на всех" },
+      { "id": "custom", "label": "Подберём вместе", "hint": "Под вашу задачу" }
+    ],
+    "certificateSums": [
+      { "id": "50", "label": "50", "hint": "Доска или ложка", "price": 50 },
+      { "id": "100", "label": "100", "hint": "Любой МК", "price": 100 },
+      { "id": "150", "label": "150", "hint": "МК для двоих", "price": 150 },
+      { "id": "200", "label": "200", "hint": "Коворкинг и МК", "price": 200 }
+    ],
+    "certificateFormats": [
+      { "id": "e", "label": "Электронный", "hint": "В мессенджер" },
+      { "id": "print", "label": "Печатный", "hint": "Красиво оформленный" }
+    ]
+  }
+}

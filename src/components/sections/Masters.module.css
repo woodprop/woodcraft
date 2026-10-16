@@ -1,0 +1,65 @@
+.ms {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.m {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.img {
+  aspect-ratio: 4 / 5;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.q {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink);
+  quotes: "«" "»";
+}
+
+/* планшет: три портрета становятся слишком узкими —
+   перестраиваем в строки «фото слева, текст справа» */
+@media (max-width: 999px) and (min-width: 761px) {
+  .ms {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .m {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+    gap: 28px;
+    align-items: center;
+  }
+
+  .img {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* телефон: одна колонка, кадр 4:3 — важные карточки доверия видны сразу */
+@media (max-width: 760px) {
+  .ms {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .img {
+    aspect-ratio: 4 / 3;
+  }
+
+  .body {
+    gap: 12px;
+  }
+}

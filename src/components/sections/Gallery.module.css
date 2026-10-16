@@ -1,0 +1,157 @@
+.flt {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.flt button {
+  font: 500 15px/1 var(--f-body);
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 0;
+  cursor: pointer;
+  background: transparent;
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1.3px rgba(28, 23, 20, 0.25);
+  transition:
+    background 0.18s,
+    color 0.18s,
+    box-shadow 0.18s;
+}
+
+.flt button:not(.on):hover {
+  background: var(--acc);
+  box-shadow: none;
+}
+
+.flt button.on {
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: none;
+}
+
+.cnt {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  opacity: 0.6;
+  margin-left: 6px;
+}
+
+.gal {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.gi {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--paper);
+  border: 1px solid rgba(28, 23, 20, 0.12);
+  border-radius: 22px;
+  overflow: hidden;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.gi:hover {
+  transform: scale(1.03);
+  box-shadow: 0 20px 44px rgba(28, 23, 20, 0.16);
+}
+
+.img {
+  aspect-ratio: 1 / 1;
+  border-radius: 0;
+}
+
+.gi figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px 16px;
+}
+
+.gi figcaption b {
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.gi figcaption :global(.mono) {
+  color: var(--mut);
+  font-size: 11px;
+}
+
+button.more {
+  display: none;
+}
+
+.cta {
+  margin-top: 28px;
+  justify-content: center;
+}
+
+@media (max-width: 1100px) {
+  .gal {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .gal {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .gi {
+    border-radius: 18px;
+  }
+
+  .gi:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .gi figcaption {
+    padding: 10px 12px 12px;
+  }
+
+  .gi figcaption b {
+    font-size: 14px;
+  }
+
+  /* фильтры — сеткой 2×3, как в макете */
+  .flt {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin-bottom: 20px;
+  }
+
+  .flt button {
+    min-width: 0;
+    padding: 8px 10px;
+    font-size: 14px;
+    line-height: 1.2;
+    white-space: normal;
+    text-align: center;
+  }
+
+  /* сначала 6 работ, остальные — по кнопке */
+  .collapsed .gi:nth-child(n + 7) {
+    display: none;
+  }
+
+  button.more {
+    display: flex;
+    width: 100%;
+    margin-top: 12px;
+  }
+
+  .cta {
+    margin-top: 12px;
+  }
+}

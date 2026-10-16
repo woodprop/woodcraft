@@ -1,0 +1,46 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.wy {
+  border: 1px solid var(--ln);
+  border-radius: 22px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 250px;
+  background: var(--dk2);
+}
+
+.wy :global(.h4) {
+  margin-top: 40px;
+  color: var(--paper);
+}
+
+@media (max-width: 1099px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wy {
+    min-height: 0;
+  }
+
+  .wy :global(.h4) {
+    margin-top: 24px;
+  }
+}
+
+/* ≤760: второстепенные аргументы — горизонтальная лента (.hscroll) */
+@media (max-width: 760px) {
+  .wy {
+    padding: 20px;
+  }
+
+  .wy :global(.h4) {
+    margin-top: 28px;
+  }
+}

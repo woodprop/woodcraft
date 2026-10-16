@@ -1,0 +1,530 @@
+/* ---------- каркас модалки ---------- */
+.card {
+  position: relative;
+  width: 100%;
+  max-width: 1080px;
+  background: var(--paper);
+  border-radius: 28px;
+  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.45);
+}
+
+.narrow {
+  max-width: 620px;
+  padding: 48px 44px 40px;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 24px;
+  margin-top: 40px;
+}
+
+.x {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1.5px rgba(28, 23, 20, 0.2);
+  transition:
+    background 0.18s,
+    box-shadow 0.18s;
+}
+
+.x:hover {
+  background: var(--acc);
+  box-shadow: none;
+}
+
+.side {
+  flex: 1 1 360px;
+  min-width: 0;
+  background: var(--lt);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.sideDark {
+  background: var(--dk);
+  color: var(--paper);
+}
+
+.sideDark :global(.txt) {
+  color: var(--mutd);
+}
+
+.sideImg {
+  height: 280px;
+  flex: none;
+  border-radius: 18px;
+}
+
+.main {
+  flex: 1.4 1 480px;
+  min-width: 0;
+  padding: 40px 40px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 56px;
+}
+
+.head > :global(.mono) {
+  color: var(--mut);
+}
+
+.formTitle {
+  font: 600 19px/1.25 var(--f-display);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.title {
+  font: 600 clamp(23px, 2.3vw, 32px) / 1.14 var(--f-display);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+/* ---------- элементы боковой колонки ---------- */
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pills span {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1.2px rgba(28, 23, 20, 0.25);
+}
+
+.chk {
+  display: grid;
+  gap: 10px;
+}
+
+.chk li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.chk svg {
+  flex: none;
+  margin-top: 1px;
+  color: var(--wood);
+}
+
+.sideDark .chk li {
+  color: var(--mutd);
+}
+
+.sideDark .chk svg {
+  color: var(--acc);
+}
+
+.rules {
+  display: grid;
+  gap: 10px;
+}
+
+.rules li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  border: 1px solid #473c33;
+  border-radius: 14px;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.rules :global(.mono) {
+  color: var(--acc);
+  padding-top: 2px;
+}
+
+.facts {
+  display: grid;
+}
+
+.facts > div {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 4px 16px;
+  padding: 12px 0;
+  border-top: 1px solid rgba(28, 23, 20, 0.15);
+}
+
+.facts dt {
+  color: var(--mut);
+  padding-top: 2px;
+}
+
+.facts dd {
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+/* ---------- выбор вариантов ---------- */
+.opts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+  gap: 10px;
+}
+
+.optsSm {
+  grid-template-columns: repeat(auto-fit, minmax(min(110px, 100%), 1fr));
+}
+
+.days {
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+}
+
+.times {
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+}
+
+.opt {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1.5px rgba(28, 23, 20, 0.15);
+  min-height: 44px;
+  transition:
+    background 0.18s,
+    color 0.18s,
+    box-shadow 0.18s;
+}
+
+.opt:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.opt:not(.on):not(:disabled):hover {
+  background: var(--acc);
+  box-shadow: none;
+}
+
+.opt:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.opt :global(.mono) {
+  color: var(--mut);
+}
+
+.opt:not(.on):hover :global(.mono) {
+  color: var(--ink);
+}
+
+.opt.on {
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: none;
+}
+
+.opt.on :global(.mono) {
+  color: var(--acc);
+}
+
+.opt b {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.opt .big {
+  font: 600 22px/1.1 var(--f-display);
+  letter-spacing: -0.02em;
+}
+
+.sm {
+  align-items: center;
+  text-align: center;
+  padding: 12px 8px;
+}
+
+/* сегмент-переключатель */
+.seg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--lt);
+}
+
+.seg button {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  text-align: center;
+  min-height: 48px;
+  border-radius: 999px;
+  font: 600 15px/1.2 var(--f-body);
+  display: grid;
+  place-items: center;
+  padding: 4px 10px;
+  transition:
+    background 0.18s,
+    color 0.18s;
+}
+
+.seg button:not(.on):hover {
+  background: var(--acc);
+}
+
+.seg button.on {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.seg button:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* список строк (мастер-классы в сертификате) */
+.list {
+  display: grid;
+  gap: 8px;
+}
+
+.row {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1.5px rgba(28, 23, 20, 0.15);
+  min-height: 52px;
+  transition:
+    background 0.18s,
+    color 0.18s,
+    box-shadow 0.18s;
+}
+
+.row b {
+  font-weight: 600;
+}
+
+.row :global(.mono) {
+  color: var(--mut);
+  white-space: nowrap;
+}
+
+.row:not(.on):hover {
+  background: var(--acc);
+  box-shadow: none;
+}
+
+.row:not(.on):hover :global(.mono) {
+  color: var(--ink);
+}
+
+.row.on {
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: none;
+}
+
+.row.on :global(.mono) {
+  color: var(--acc);
+}
+
+.row:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* степпер количества */
+.step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1.5px rgba(28, 23, 20, 0.15);
+  padding: 4px;
+  align-self: flex-start;
+}
+
+.step button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--lt);
+  color: var(--ink);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 0.18s;
+}
+
+.step button:hover:not(:disabled) {
+  background: var(--acc);
+}
+
+.step button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.step output {
+  min-width: 40px;
+  text-align: center;
+  font: 600 18px/1 var(--f-body);
+}
+
+/* чекбокс-карточка */
+.cb {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: var(--lt);
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+.cb:hover {
+  background: var(--acc);
+}
+
+.cb input {
+  width: 22px;
+  height: 22px;
+  margin: 1px 0 0;
+  accent-color: var(--ink);
+  flex: none;
+}
+
+.cb b {
+  display: block;
+  font-weight: 600;
+}
+
+.note {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: var(--lt);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.note svg {
+  flex: none;
+  color: var(--wood);
+  margin-top: 2px;
+}
+
+/* итог */
+.tot {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding-top: 18px;
+  border-top: 2px dotted rgba(28, 23, 20, 0.22);
+}
+
+.tot > :global(.mono) {
+  color: var(--mut);
+}
+
+.sum {
+  font: 600 30px/1 var(--f-display);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.submit {
+  min-height: 56px;
+  font-size: 18px;
+  padding: 6px 32px;
+}
+
+/* ---------- телефон: модалка на весь экран ---------- */
+@media (max-width: 760px) {
+  .card {
+    border-radius: 0;
+    box-shadow: none;
+    min-height: 100%;
+  }
+
+  .narrow {
+    margin-top: 0;
+    padding: 72px 16px 32px;
+  }
+
+  .x {
+    top: 12px;
+    right: 12px;
+  }
+
+  .side {
+    padding: 20px 16px 24px;
+  }
+
+  /* фото сверху — ниже, чтобы форма начиналась раньше */
+  .sideImg {
+    height: 200px;
+  }
+
+  .main {
+    padding: 24px 16px 32px;
+    gap: 22px;
+  }
+
+  .head {
+    padding-right: 0;
+  }
+
+  .submit {
+    font-size: 16px;
+  }
+
+  .row {
+    padding: 12px 14px;
+  }
+}

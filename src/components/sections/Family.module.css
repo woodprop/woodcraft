@@ -1,0 +1,96 @@
+.fam {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px 64px;
+  align-items: stretch;
+}
+
+.photo {
+  flex: 1 1 440px;
+  min-height: 420px;
+}
+
+.right {
+  flex: 1 1 460px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.facts {
+  display: grid;
+}
+
+.facts > div {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 8px 24px;
+  padding: 16px 0;
+  border-top: 1px solid rgba(28, 23, 20, 0.15);
+}
+
+.facts dt {
+  color: var(--mut);
+  padding-top: 3px;
+}
+
+.facts dd {
+  font-size: 17px;
+  line-height: 1.45;
+}
+
+.quote {
+  padding: 20px 22px;
+  border-radius: 18px;
+  background: var(--paper);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.btns {
+  justify-content: flex-end;
+}
+
+/* колонки встали друг под друга: фото — широкий кадр, кнопка слева */
+@media (max-width: 1100px) {
+  .photo {
+    flex-basis: 100%;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+    max-height: 460px;
+  }
+
+  .btns {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 760px) {
+  .fam {
+    gap: 28px;
+  }
+
+  .photo {
+    aspect-ratio: 4 / 3;
+  }
+
+  .right {
+    gap: 20px;
+  }
+
+  .facts > div {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding: 14px 0;
+  }
+
+  .facts dd {
+    font-size: 16px;
+  }
+
+  .quote {
+    padding: 18px;
+    font-size: 15px;
+  }
+}

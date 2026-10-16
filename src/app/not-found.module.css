@@ -1,0 +1,30 @@
+.card {
+  min-height: calc(100svh - 2 * var(--page-pad));
+  background: var(--lt);
+  border-radius: var(--r-card);
+  padding: var(--card-py) var(--card-px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  font: 700 20px/1 var(--f-display);
+  margin-bottom: auto;
+}
+
+.code {
+  font: 800 clamp(96px, 22vw, 280px) / 0.9 var(--f-display);
+  letter-spacing: -0.05em;
+  color: var(--acc);
+}
+
+.card :global(.btns) {
+  margin-bottom: auto;
+}

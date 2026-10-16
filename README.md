@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WoodCraft — сайт столярной мастерской
 
-## Getting Started
+Лендинг на Next.js 16 (App Router, TypeScript, CSS Modules). Статическая страница + API-маршрут для заявок.
 
-First, run the development server:
+## Запуск
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # заполнить для отправки заявок
+npm run dev                  # http://localhost:3000
+npm run build && npm start   # продакшен
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Без `RESEND_API_KEY` в режиме разработки заявки пишутся в консоль сервера; в продакшене форма покажет ошибку, пока почта не настроена.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Где что лежит
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Что | Где |
+| --- | --- |
+| Расписание мастер-классов (даты, места, цены) | `src/content/ru/masterclasses.json` |
+| Галерея, отзывы, мастера, FAQ | `src/content/ru/*.json` |
+| Контакты, тарифы коворкинга, варианты в формах | `src/content/ru/settings.json` |
+| Тексты секций и форм | `src/i18n/ru.ts` (`*текст*` — выделение маркером) |
+| Фото | `public/images` |
+| Дизайн-токены, кнопки, сетка секций | `src/app/globals.css` |
+| Секции страницы | `src/components/sections` |
+| Модальные окна и формы | `src/components/modals` |
+| Приём заявок → email | `src/app/api/lead/route.ts` |
 
-## Learn More
+Все данные читаются через `getContent()` (`src/lib/content.ts`). При переходе на админку с БД меняется только эта функция.
 
-To learn more about Next.js, take a look at the following resources:
+Значения в квадратных скобках (`[телефон]`, `[улица, дом]` …) — заглушки, на сайте подсвечиваются. Пустые ссылки на мессенджеры ведут к блоку контактов.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Модальные окна
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+У каждой модалки свой адрес — ссылку можно отправить клиенту:
 
-## Deploy on Vercel
+- `/?book=masterclass&id=board` — запись на конкретный мастер-класс (`id` из `masterclasses.json`)
+- `/?book=coworking&tariff=day` — бронь коворкинга с выбранным тарифом
+- `/?book=certificate`, `/?book=corporate`, `/?book=family`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Языки
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Сейчас только `ru`. Для нового языка: скопировать `src/i18n/ru.ts` и `src/content/ru/`, перевести, добавить локаль в `src/i18n/index.ts` и `src/lib/content.ts`, затем вынести страницу в `app/[lang]/`.

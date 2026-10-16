@@ -1,0 +1,211 @@
+.ft {
+  background: var(--lt);
+  border-radius: var(--r-card);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.inner {
+  padding: clamp(28px, 5vw, 64px) var(--card-px) 32px;
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px 56px;
+}
+
+.brand {
+  flex: 1.4 1 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.brand :global(.txt) {
+  max-width: 340px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  align-self: flex-start;
+}
+
+.logoText {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.logoText b {
+  font: 700 20px/1 var(--f-display);
+}
+
+.logoText :global(.mono) {
+  font-size: 10px;
+  color: var(--mut);
+}
+
+.soc {
+  display: flex;
+  gap: 10px;
+}
+
+.col {
+  flex: 1 1 170px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.col > :global(.mono) {
+  color: var(--mut);
+  margin-bottom: 4px;
+}
+
+.col a {
+  text-decoration: none;
+  font-size: 16px;
+  line-height: 1.4;
+  display: inline-flex;
+  align-self: flex-start;
+  min-height: 28px;
+  align-items: center;
+  border-radius: 6px;
+  transition:
+    background 0.18s,
+    box-shadow 0.18s;
+}
+
+.col a:hover {
+  background: var(--acc);
+  box-shadow: 0 0 0 4px var(--acc);
+}
+
+.col p {
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.map {
+  flex: 1 1 240px;
+  min-height: 190px;
+  display: flex;
+  align-items: flex-start;
+  padding: 14px;
+  background-image: repeating-linear-gradient(135deg, rgba(28, 23, 20, 0.07) 0 1px, transparent 1px 11px);
+  text-decoration: none;
+}
+
+.mapLabel {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #3a332d;
+  background: rgba(248, 246, 242, 0.92);
+  padding: 6px 10px;
+  border-radius: 10px;
+}
+
+.pin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -100%);
+}
+
+.bot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 48px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(28, 23, 20, 0.15);
+  color: var(--mut);
+  font-size: 14px;
+}
+
+/* ---------- огромная надпись поверх фото ---------- */
+.giant {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(48px, 7vw, 110px) clamp(16px, 2.5vw, 36px) clamp(12px, 2vw, 28px);
+}
+
+.giantImg {
+  object-fit: cover;
+  object-position: 50% 62%;
+}
+
+.giant::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 26%;
+  background: linear-gradient(var(--lt), rgba(238, 235, 230, 0));
+  z-index: 1;
+}
+
+.giant::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(28, 23, 20, 0) 8%, rgba(28, 23, 20, 0.62) 45%, rgba(28, 23, 20, 0.78));
+  z-index: 1;
+}
+
+.giant svg {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+}
+
+.giant text {
+  fill: var(--lt);
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: 136px;
+  letter-spacing: -0.03em;
+}
+
+/* планшет: бренд и карта во всю ширину, три колонки ссылок в ряд */
+@media (max-width: 1000px) {
+  .brand {
+    flex-basis: 100%;
+  }
+
+  .map {
+    flex-basis: 100%;
+    min-height: 180px;
+  }
+}
+
+@media (max-width: 560px) {
+  .grid {
+    gap: 32px 24px;
+  }
+
+  .col {
+    flex-basis: calc(50% - 12px);
+  }
+
+  .bot {
+    margin-top: 32px;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .giant {
+    padding-top: 40px;
+  }
+}

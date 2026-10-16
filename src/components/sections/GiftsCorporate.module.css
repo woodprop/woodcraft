@@ -1,0 +1,165 @@
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--page-pad);
+}
+
+.row > :global(.blk) {
+  flex: 1 1 560px;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  height: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.cta {
+  margin-top: auto;
+}
+
+.photo {
+  height: 280px;
+  flex: none;
+}
+
+/* ---------- сертификат-превью ---------- */
+.cert {
+  position: relative;
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 18px;
+  padding: 26px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  transform: rotate(-2.5deg);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.35);
+  max-width: 440px;
+  width: 100%;
+  align-self: center;
+  margin: 12px 0 8px;
+}
+
+.cert::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 1.5px dashed rgba(28, 23, 20, 0.25);
+  border-radius: 12px;
+  pointer-events: none;
+}
+
+.certH {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  color: var(--mut);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+}
+
+.brand b {
+  font: 700 14px/1 var(--f-display);
+}
+
+.certB {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.certB :global(.mono) {
+  color: var(--wood);
+}
+
+.what {
+  font: 600 22px/1.2 var(--f-display);
+  letter-spacing: -0.02em;
+}
+
+.certF {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--mut);
+}
+
+/* ряд разошёлся в столбец (≈ <1170px): карточки во всю ширину,
+   контент ограничиваем, чтобы строки не растягивались */
+@media (max-width: 1170px) and (min-width: 761px) {
+  /* карточка во всю ширину: текст слева, визуал (сертификат / фото) справа */
+  .col {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+    grid-auto-flow: row dense;
+    column-gap: clamp(28px, 4vw, 56px);
+    row-gap: 20px;
+    align-content: start;
+    max-width: none;
+    margin: 0;
+  }
+
+  .col > * {
+    grid-column: 1;
+  }
+
+  .col > .cert,
+  .col > .photo {
+    grid-column: 2;
+    grid-row: 1 / span 6;
+    align-self: center;
+  }
+
+  .photo {
+    height: 100%;
+    min-height: 320px;
+  }
+
+  .cert {
+    margin: 0;
+    justify-self: center;
+  }
+
+  .cta {
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 760px) {
+  .col {
+    gap: 20px;
+  }
+
+  .photo {
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+
+  .cert {
+    padding: 22px 20px;
+    gap: 18px;
+    transform: rotate(-2deg);
+    margin: 8px auto 4px;
+    align-self: center;
+    width: calc(100% - 12px);
+  }
+
+  .what {
+    font-size: 19px;
+  }
+
+  .certF {
+    flex-wrap: wrap;
+    gap: 4px 12px;
+  }
+}

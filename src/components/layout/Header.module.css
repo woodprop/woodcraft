@@ -1,0 +1,257 @@
+.top {
+  display: flex;
+  align-items: center;
+  min-height: 80px;
+  margin-bottom: 16px;
+  padding-right: 4px;
+  color: var(--paper);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 32px 0 8px;
+  color: var(--paper);
+  text-decoration: none;
+  min-height: 64px;
+  flex: none;
+}
+
+.wm {
+  font: 700 20px/1 var(--f-display);
+  letter-spacing: 0.01em;
+}
+
+/* навигация-«пилюля» */
+.navtabs {
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  margin-left: 8px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1.5px rgba(248, 246, 242, 0.28);
+}
+
+.ntab {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 999px;
+  font: 500 15px/1 var(--f-body);
+  color: var(--paper);
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background 0.18s,
+    color 0.18s;
+}
+
+/* как в макете: подсветка сегментами, скругления только по краям пилюли */
+.ntab:not(:first-child):not(:last-child) {
+  border-radius: 0;
+}
+
+.ntab:first-child {
+  border-radius: 999px 0 0 999px;
+}
+
+.ntab:last-child {
+  border-radius: 0 999px 999px 0;
+}
+
+.ntab:hover,
+.ntab:focus-visible {
+  background: var(--acc);
+  color: var(--ink);
+  outline: none;
+}
+
+.topr {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 24px;
+}
+
+.soc {
+  color: var(--paper);
+  box-shadow: inset 0 0 0 1.5px rgba(248, 246, 242, 0.35);
+}
+
+.cta:hover {
+  background: transparent;
+  color: var(--acc);
+  box-shadow: inset 0 0 0 1.5px var(--acc);
+}
+
+.burger {
+  display: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+  place-items: center;
+  cursor: pointer;
+  color: var(--paper);
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px rgba(248, 246, 242, 0.28);
+  transition:
+    background 0.18s,
+    color 0.18s;
+}
+
+.burger:hover,
+.burger:focus-visible {
+  background: var(--acc);
+  color: var(--ink);
+  box-shadow: none;
+}
+
+/* 1080 и уже: мессенджеры прячем — они есть в разделе контактов и в меню */
+@media (max-width: 1080px) {
+  .soc {
+    display: none;
+  }
+}
+
+/* 860 и уже: навигация уходит в бургер, кнопка записи остаётся рядом */
+@media (max-width: 860px) {
+  .navtabs {
+    display: none;
+  }
+
+  .burger {
+    display: grid;
+  }
+
+  .logo {
+    padding-right: 12px;
+  }
+}
+
+@media (max-width: 760px) {
+  .top {
+    margin-bottom: 8px;
+    min-height: 64px;
+  }
+
+  .logo {
+    padding: 0 12px 0 6px;
+    gap: 10px;
+  }
+
+  .logo svg {
+    width: 34px;
+    height: 34px;
+  }
+
+  .wm {
+    font-size: 16px;
+  }
+
+  .cta {
+    min-height: 48px;
+    padding: 6px 20px;
+    font-size: 15px;
+  }
+}
+
+/* на узких телефонах — только бургер, как в макете */
+@media (max-width: 480px) {
+  .cta {
+    display: none;
+  }
+
+  .topr {
+    padding-left: 8px;
+  }
+}
+
+/* ----- открытое мобильное меню ----- */
+.mm {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px max(24px, env(safe-area-inset-bottom));
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.mmTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 64px;
+  padding-right: 4px;
+}
+
+.mmTop .burger {
+  display: grid;
+}
+
+.mmNav {
+  display: flex;
+  flex-direction: column;
+  margin: clamp(16px, 5vh, 48px) 0 32px;
+  padding: 0 6px;
+}
+
+.mmNav a {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 14px 0;
+  border-top: 1px solid var(--ln);
+  font: 600 clamp(22px, 6.4vw, 30px) / 1.15 var(--f-display);
+  letter-spacing: -0.02em;
+  color: var(--paper);
+  text-decoration: none;
+  transition: color 0.18s;
+}
+
+.mmNav a:last-child {
+  border-bottom: 1px solid var(--ln);
+}
+
+.mmNav a:hover,
+.mmNav a:focus-visible {
+  color: var(--acc);
+  outline: none;
+}
+
+.mmNav .mono {
+  color: var(--acc);
+  min-width: 24px;
+}
+
+.mmBot {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 6px;
+}
+
+.mmSoc {
+  display: flex;
+  gap: 10px;
+}
+
+.mmSoc :global(.icb) {
+  color: var(--paper);
+  box-shadow: inset 0 0 0 1.5px rgba(248, 246, 242, 0.35);
+}
+
+.mmBot :global(.btn) {
+  width: 100%;
+  min-height: 56px;
+}
+
+.mmBot :global(.btn):hover {
+  background: var(--paper);
+  color: var(--ink);
+}

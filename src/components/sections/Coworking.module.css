@@ -1,0 +1,276 @@
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px 56px;
+  margin-bottom: 48px;
+  align-items: stretch;
+}
+
+.text {
+  flex: 1 1 360px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  justify-content: center;
+}
+
+.img {
+  flex: 1 1 360px;
+  height: 380px;
+}
+
+/* ---------- тарифы ---------- */
+.tariffs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.tar {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border-radius: 24px;
+  min-width: 0;
+}
+
+.hl {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.hl :global(.txt) {
+  color: var(--mutd);
+}
+
+.pr {
+  font: 600 clamp(42px, 4.2vw, 60px) / 1 var(--f-display);
+  letter-spacing: -0.03em;
+}
+
+.pr small {
+  font-size: 0.45em;
+  letter-spacing: 0;
+}
+
+.tar :global(.btn) {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+/* 2 колонки + выделенный тариф на всю ширину */
+@media (max-width: 999px) {
+  .tariffs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tar:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      "tag tag tag"
+      "price txt btn";
+    align-items: center;
+    column-gap: 32px;
+  }
+
+  .tar:last-child:nth-child(odd) > :nth-child(1) {
+    grid-area: tag;
+  }
+
+  .tar:last-child:nth-child(odd) > :nth-child(2) {
+    grid-area: price;
+  }
+
+  .tar:last-child:nth-child(odd) > :nth-child(3) {
+    display: none;
+  }
+
+  .tar:last-child:nth-child(odd) > :nth-child(4) {
+    grid-area: txt;
+  }
+
+  .tar:last-child:nth-child(odd) > :nth-child(5) {
+    grid-area: btn;
+    margin: 0;
+  }
+}
+
+/* важные карточки: на телефоне одна колонка, без прокрутки */
+@media (max-width: 640px) {
+  .tariffs {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .tar,
+  .tar:last-child:nth-child(odd) {
+    display: flex;
+    align-items: stretch;
+    padding: 22px 20px;
+    gap: 14px;
+  }
+
+  .tar:last-child:nth-child(odd) > :nth-child(3) {
+    display: block;
+  }
+
+  .tar :global(.btn) {
+    align-self: stretch;
+    margin-top: 6px;
+  }
+}
+
+/* ---------- допуск к станкам ---------- */
+.adm {
+  margin-top: 16px;
+  background: var(--dk);
+  color: var(--paper);
+  border-radius: 24px;
+  padding: clamp(24px, 3.5vw, 44px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px 56px;
+}
+
+.adm :global(.txt) {
+  color: var(--mutd);
+}
+
+.admL {
+  flex: 1 1 300px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.warn {
+  margin-top: auto;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: rgba(228, 197, 144, 0.12);
+  color: var(--paper);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.warn svg {
+  flex: none;
+  color: var(--acc);
+  margin-top: 2px;
+}
+
+.steps {
+  flex: 1.3 1 380px;
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.st {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  padding: 18px 20px;
+  border: 1px solid var(--ln);
+  border-radius: 18px;
+  background: var(--dk2);
+}
+
+.n {
+  font: 600 22px/1 var(--f-display);
+  color: var(--acc);
+  min-width: 40px;
+}
+
+/* ---------- что ещё есть ---------- */
+.extra {
+  margin-top: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.exGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.ex {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 2px solid var(--ink);
+}
+
+.extra :global(.btns) {
+  margin-top: 20px;
+}
+
+@media (max-width: 1099px) {
+  .exGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 24px;
+  }
+}
+
+/* текст и фото встали друг под друга — широкий кадр вместо высокой полосы */
+@media (max-width: 860px) {
+  .img {
+    flex-basis: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+}
+
+@media (max-width: 760px) {
+  .top {
+    margin-bottom: 32px;
+    gap: 24px;
+  }
+
+  .img {
+    height: auto;
+    aspect-ratio: 4 / 3;
+    flex-basis: 100%;
+  }
+
+  .adm {
+    padding: 22px 18px;
+    gap: 24px;
+  }
+
+  .st {
+    padding: 16px;
+    gap: 14px;
+  }
+
+  .extra {
+    margin-top: 36px;
+  }
+
+  .extra :global(.btns) {
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 520px) {
+  .exGrid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .ex {
+    padding-top: 14px;
+    gap: 8px;
+  }
+}

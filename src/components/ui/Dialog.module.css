@@ -1,0 +1,103 @@
+.dialog {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  color: var(--ink);
+}
+
+.dialog::backdrop {
+  background: transparent;
+}
+
+/* ----- модалка: тёмное «полотно» со штриховкой, карточка сверху ----- */
+.modal {
+  padding: 56px 24px;
+  background-color: rgba(20, 16, 13, 0.94);
+  background-image: repeating-linear-gradient(135deg, rgba(248, 246, 242, 0.025) 0 1px, transparent 1px 14px);
+}
+
+.modal[open] {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  animation: fade 0.22s ease both;
+}
+
+.modal[open] > * {
+  animation: rise 0.32s var(--ease) both;
+}
+
+.modal[data-closing] {
+  animation: fade 0.2s ease reverse both;
+}
+
+.modal[data-closing] > * {
+  animation: rise 0.2s ease reverse both;
+}
+
+@media (max-width: 760px) {
+  .modal {
+    padding: 0;
+    background: var(--paper);
+  }
+
+  .modal[open] > * {
+    animation-name: slide;
+  }
+
+  .modal[data-closing] > * {
+    animation-name: slide;
+  }
+}
+
+/* ----- мобильное меню: полноэкранная тёмная панель ----- */
+.menu {
+  background: var(--frame);
+  color: var(--paper);
+}
+
+.menu[open] {
+  display: block;
+  animation: fade 0.22s ease both;
+}
+
+.menu[data-closing] {
+  animation: fade 0.2s ease reverse both;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.985);
+  }
+}
+
+@keyframes slide {
+  from {
+    transform: translateY(32px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog[open],
+  .dialog[open] > *,
+  .dialog[data-closing],
+  .dialog[data-closing] > * {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "categories": [
+    { "id": "all", "label": "Все" },
+    { "id": "boards", "label": "Доски и ложки" },
+    { "id": "boxes", "label": "Полки и шкатулки" },
+    { "id": "furniture", "label": "Мебель" },
+    { "id": "family", "label": "Для семьи" },
+    { "id": "cowork", "label": "Проекты коворкинга" }
+  ],
+  "items": [
+    { "id": "g1", "category": "boards", "title": "Разделочная доска из ореха", "sub": "Мастер-класс · первая работа Анны", "image": { "src": "/images/gallery/board-walnut.jpg", "alt": "Разделочная доска из ореха", "pos": "50% 62%" } },
+    { "id": "g2", "category": "boxes", "title": "Шкатулка с крышкой", "sub": "Мастер-класс · первая работа Нино", "image": { "src": "/images/gallery/box.jpg", "alt": "Шкатулка с крышкой", "pos": "58% 50%" } },
+    { "id": "g3", "category": "furniture", "title": "Табурет из дуба", "sub": "Мастер-класс · Дмитрий", "image": { "src": "/images/gallery/stool-oak.jpg", "alt": "Табурет из дуба" } },
+    { "id": "g4", "category": "family", "title": "Скворечник", "sub": "Для семьи · Лука и Мария", "image": { "src": "/images/gallery/birdhouse.jpg", "alt": "Скворечник", "pos": "50% 46%" } },
+    { "id": "g5", "category": "boards", "title": "Резная ложка из вишни", "sub": "Мастер-класс · Тимур", "image": { "src": "/images/gallery/spoon-cherry.jpg", "alt": "Резная ложка из вишни" } },
+    { "id": "g6", "category": "cowork", "title": "Обеденный стол из дуба", "sub": "Коворкинг · Георгий", "image": { "src": "/images/gallery/table-oak.jpg", "alt": "Обеденный стол из дуба", "pos": "50% 55%" } },
+    { "id": "g7", "category": "boxes", "title": "Настенная полка", "sub": "Мастер-класс · Элене", "image": { "src": "/images/gallery/shelf.jpg", "alt": "Настенная полка", "pos": "45% 50%" } },
+    { "id": "g8", "category": "family", "title": "Деревянная машинка", "sub": "Для семьи · Гиорги и папа", "image": { "src": "/images/gallery/toy-car.jpg", "alt": "Деревянная машинка" } },
+    { "id": "g9", "category": "boards", "title": "Лопатка из бука", "sub": "Мастер-класс · Саша", "image": { "src": "/images/gallery/spatula-beech.jpg", "alt": "Лопатка из бука" } },
+    { "id": "g10", "category": "cowork", "title": "Стеллаж для пластинок", "sub": "Коворкинг · Ник", "image": { "src": "/images/gallery/vinyl-rack.jpg", "alt": "Стеллаж для пластинок" } },
+    { "id": "g11", "category": "furniture", "title": "Табурет из ясеня", "sub": "Мастер-класс · Ольга", "image": { "src": "/images/gallery/stool-ash.jpg", "alt": "Табурет из ясеня", "pos": "50% 72%" } },
+    { "id": "g12", "category": "family", "title": "Кормушка для птиц", "sub": "Для семьи · Ана и мама", "image": { "src": "/images/gallery/bird-feeder.jpg", "alt": "Кормушка для птиц" } }
+  ]
+}

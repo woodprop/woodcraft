@@ -1,0 +1,93 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.fc {
+  background: var(--dk);
+  color: var(--paper);
+  border: 1px solid var(--ln);
+  border-radius: 24px;
+  padding: 24px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  min-width: 0;
+}
+
+.fc :global(.txt) {
+  color: var(--mutd);
+}
+
+.ics {
+  display: flex;
+}
+
+.ci {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #40362e;
+  border: 3px solid var(--dk);
+  display: grid;
+  place-items: center;
+  color: var(--acc);
+}
+
+.ci + .ci {
+  margin-left: -12px;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.body :global(.btn) {
+  margin-top: auto;
+}
+
+/* кнопки перестают помещаться в 3 колонки — 2 + третья карточка на всю ширину */
+@media (max-width: 1179px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .fc:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  /* широкая карточка: иконки слева, текст справа — без пустого места */
+  .fc:last-child:nth-child(odd) {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 28px;
+  }
+
+  .fc:last-child:nth-child(odd) .body {
+    max-width: 620px;
+  }
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .fc,
+  .fc:last-child:nth-child(odd) {
+    flex-direction: column;
+    gap: 24px;
+    padding: 20px 20px 22px;
+  }
+
+  .body :global(.btn) {
+    align-self: stretch;
+    margin-top: 8px;
+  }
+}

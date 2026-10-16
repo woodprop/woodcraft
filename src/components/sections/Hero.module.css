@@ -1,0 +1,117 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.hero {
+  background: var(--lt);
+  border-radius: var(--r-card);
+  padding: var(--card-py) var(--card-px);
+  scroll-margin-top: 120px;
+}
+
+.pills {
+  margin-bottom: 28px;
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px 56px;
+  align-items: stretch;
+  margin-top: 44px;
+}
+
+.left {
+  flex: 1 1 360px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  justify-content: space-between;
+}
+
+.offers {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.offers b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.btns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  max-width: 440px;
+}
+
+.btns :global(.btn) {
+  width: 100%;
+  min-height: 58px;
+}
+
+.note {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 15px;
+  color: var(--mut);
+}
+
+.note svg {
+  color: var(--wood);
+  flex: none;
+}
+
+.photo {
+  flex: 1.5 1 420px;
+  height: 460px;
+}
+
+/* Колонки встали друг под друга (≈ <900px): фото пропорционально ширине */
+@media (max-width: 900px) and (min-width: 761px) {
+  .photo {
+    height: clamp(340px, 52vw, 460px);
+  }
+}
+
+@media (max-width: 760px) {
+  .grid {
+    margin-top: 28px;
+    gap: 28px;
+  }
+
+  .pills {
+    margin-bottom: 20px;
+  }
+
+  .left {
+    gap: 28px;
+  }
+
+  .btns {
+    max-width: none;
+  }
+
+  .btns :global(.btn) {
+    min-height: 56px;
+  }
+
+  /* вертикальный исходник: на телефоне кадр выше, чтобы в нём были и руки, и мастер */
+  .photo {
+    flex-basis: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    max-height: 520px;
+  }
+}
