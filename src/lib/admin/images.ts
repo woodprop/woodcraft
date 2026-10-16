@@ -3,7 +3,7 @@ import "server-only";
 import { readdir } from "node:fs/promises";
 import path from "node:path";
 import type { SiteData } from "@/lib/types";
-import { listUploads } from "./storage";
+import { repo } from "./index";
 
 const PUBLIC = path.join(process.cwd(), "public");
 
@@ -21,12 +21,12 @@ async function walk(dir: string): Promise<string[]> {
 
 /**
  * Фото, из которых можно выбирать в админке: загруженные через админку
- * (Vercel Blob; в демо-режиме — data URL из данных) и файлы из public/images.
+ * (список из БД; плюс уже используемые в данных — Blob и data URL в демо) и файлы из public/images.
  */
 export async function imageLibrary(data: SiteData) {
-  const [files, uploads] = await Promise.all([walk(path.join(PUBLIC, "images")), listUploads()]);
+  const [files, uploads] = await Promise.all([walk(path.join(PUBLIC, "images")), repo.listUploads()]);
   const local = files.map((f) => "/" + path.relative(PUBLIC, f).split(path.sep).join("/"));
   const used = [...data.masterclasses.map((m) => m.image.src), ...data.gallery.items.map((g) => g.image.src)];
-  const inline = used.filter((src) => src.startsWith("data:"));
-  return [...new Set([...uploads, ...inline, ...local.sort()])];
+  const uploaded = used.filter((src) => !src.startsWith("/"));
+  return [...new Set([...uploads, ...uploaded, ...local.sort()])];
 }

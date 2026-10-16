@@ -68,6 +68,12 @@ export const settings = pgTable("settings", {
   value: jsonb("value").notNull(),
 }).enableRLS();
 
+/** Фото, загруженные через админку в Vercel Blob, — для «Выбрать из загруженных» (список из Blob слишком медленный) */
+export const uploads = pgTable("uploads", {
+  url: text("url").primaryKey(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}).enableRLS();
+
 /** Копия всех данных после каждого сохранения — чтобы можно было откатить ошибку в админке */
 export const snapshots = pgTable("snapshots", {
   id: serial("id").primaryKey(),

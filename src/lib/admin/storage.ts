@@ -1,6 +1,6 @@
 import "server-only";
 
-import { list, put } from "@vercel/blob";
+import { put } from "@vercel/blob";
 import { randomUUID } from "node:crypto";
 
 /** Папка загруженных фото в Vercel Blob */
@@ -38,17 +38,4 @@ export async function storeImage(file: File, allowDataUrl: boolean): Promise<Upl
   }
   if (!allowDataUrl) return { ok: false, message: "Хранилище фото не настроено: подключите Vercel Blob к проекту" };
   return { ok: true, src: `data:${type};base64,${Buffer.from(bytes).toString("base64")}` };
-}
-
-/** Все загруженные фото, новые первыми */
-export async function listUploads(): Promise<string[]> {
-  if (!blobEnabled()) return [];
-  const found: { url: string; uploadedAt: Date }[] = [];
-  let cursor: string | undefined;
-  do {
-    const page = await list({ prefix: PREFIX, cursor, limit: 1000 });
-    found.push(...page.blobs);
-    cursor = page.hasMore ? page.cursor : undefined;
-  } while (cursor);
-  return found.sort((a, b) => b.uploadedAt.getTime() - a.uploadedAt.getTime()).map((b) => b.url);
 }

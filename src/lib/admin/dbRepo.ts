@@ -1,10 +1,14 @@
 // Хранилище контента в Postgres (Supabase).
 // Без "server-only": loadSiteData и importSiteData нужны и скрипту scripts/seed.ts.
+//
+// Каждый запрос — это поездка до базы (~70 мс из Тбилиси, ~2 мс из Vercel fra1), а запросы
+// внутри транзакции идут строго по очереди. Поэтому чтение — один запрос, а запись
+// собирается в как можно меньшее число запросов.
 
-import { asc, eq, sql } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import type { Db } from "@/lib/db/client";
-import { galleryItems, masterclassSessions, masterclasses, reviews, settings, snapshots, type Settings } from "@/lib/db/schema";
-import type { GalleryItem, MasterclassRec, ReviewRec, Session, SiteData } from "@/lib/types";
+import { galleryItems, masterclassSessions, masterclasses, reviews, settings, uploads, type Settings } from "@/lib/db/schema";
+import type { GalleryItem, Img, MasterclassRec, ReviewRec, Session, SiteData } from "@/lib/types";
 import type { ContentRepo } from "./repo";
 
 /** сколько последних копий данных хранить в snapshots */
@@ -15,45 +19,58 @@ type Exec = Db | Tx;
 
 const SETTING_KEYS = ["tariffs", "family", "certificateSums", "coworking", "galleryCategories", "seo"] as const satisfies (keyof Settings)[];
 
-// Postgres отдаёт "2026-10-24 12:00:00" и "14:00:00", сайт ждёт "2026-10-24T12:00" и "14:00"
+// В JSON Postgres отдаёт "2026-10-24T12:00:00" и "14:00:00", сайт ждёт "2026-10-24T12:00" и "14:00"
 const toStart = (v: string) => v.slice(0, 16).replace(" ", "T");
 const toTime = (v: string) => v.slice(0, 5);
 
+/** результат db.execute: у postgres.js — массив строк, у других драйверов — { rows } */
+function rowsOf<T>(res: unknown): T[] {
+  return (Array.isArray(res) ? res : (res as { rows: T[] }).rows) as T[];
+}
+
 /* ---------- Чтение ---------- */
 
-export async function loadSiteData(db: Exec): Promise<SiteData> {
-  const [mcRows, sessionRows, galleryRows, reviewRows, settingRows] = await Promise.all([
-    db.select().from(masterclasses).orderBy(asc(masterclasses.position)),
-    db.select().from(masterclassSessions).orderBy(asc(masterclassSessions.start)),
-    db.select().from(galleryItems).orderBy(asc(galleryItems.position)),
-    db.select().from(reviews).orderBy(asc(reviews.position)),
-    db.select().from(settings),
-  ]);
+// строки таблиц в том виде, в каком их отдаёт json_agg (имена колонок из БД)
+type McRow = { id: string; title: string; desc: string; about: string; hours: number; price: number; capacity: number; image: Img; hidden: boolean };
+type SessionRow = { masterclass_id: string; start: string; end: string; seats_left: number };
+type GalleryRow = { id: string; category: string; title: string; sub: string; image: Img; hidden: boolean };
+type ReviewRow = { id: string; name: string; format: string; text: string; made: string; hidden: boolean };
+type LoadRow = { mcs: McRow[]; sessions: SessionRow[]; gallery: GalleryRow[]; reviews: ReviewRow[]; settings: Partial<Settings> };
 
-  const s = Object.fromEntries(settingRows.map((r) => [r.key, r.value])) as Partial<Settings>;
+/** все данные одним запросом */
+const LOAD = sql`select
+  (select coalesce(json_agg(t order by t.position), '[]') from ${masterclasses} t) as mcs,
+  (select coalesce(json_agg(t order by t."start"), '[]') from ${masterclassSessions} t) as sessions,
+  (select coalesce(json_agg(t order by t.position), '[]') from ${galleryItems} t) as gallery,
+  (select coalesce(json_agg(t order by t.position), '[]') from ${reviews} t) as reviews,
+  (select coalesce(json_object_agg(t.key, t.value), '{}') from ${settings} t) as settings`;
+
+export async function loadSiteData(db: Exec): Promise<SiteData> {
+  const [r] = rowsOf<LoadRow>(await db.execute(LOAD));
+  const s = r.settings;
   const missing = SETTING_KEYS.filter((k) => s[k] === undefined);
   if (missing.length) throw new Error(`В базе нет настроек: ${missing.join(", ")}. Заполните её: npm run db:seed`);
 
   const sessions = new Map<string, Session[]>();
-  for (const r of sessionRows) {
-    const list = sessions.get(r.masterclassId) ?? [];
-    list.push({ start: toStart(r.start), end: toTime(r.end), seatsLeft: r.seatsLeft });
-    sessions.set(r.masterclassId, list);
+  for (const x of r.sessions) {
+    const list = sessions.get(x.masterclass_id) ?? [];
+    list.push({ start: toStart(x.start), end: toTime(x.end), seatsLeft: x.seats_left });
+    sessions.set(x.masterclass_id, list);
   }
 
   return {
-    masterclasses: mcRows.map(
-      (r): MasterclassRec => ({
-        id: r.id,
-        title: r.title,
-        desc: r.desc,
-        about: r.about,
-        hours: r.hours,
-        price: r.price,
-        capacity: r.capacity,
-        image: r.image,
-        sessions: sessions.get(r.id) ?? [],
-        ...(r.hidden && { hidden: true }),
+    masterclasses: r.mcs.map(
+      (m): MasterclassRec => ({
+        id: m.id,
+        title: m.title,
+        desc: m.desc,
+        about: m.about,
+        hours: m.hours,
+        price: m.price,
+        capacity: m.capacity,
+        image: m.image,
+        sessions: sessions.get(m.id) ?? [],
+        ...(m.hidden && { hidden: true }),
       }),
     ),
     tariffs: s.tariffs!,
@@ -62,25 +79,25 @@ export async function loadSiteData(db: Exec): Promise<SiteData> {
     coworking: s.coworking!,
     gallery: {
       categories: s.galleryCategories!,
-      items: galleryRows.map(
-        (r): GalleryItem => ({
-          id: r.id,
-          category: r.category,
-          title: r.title,
-          sub: r.sub,
-          image: r.image,
-          ...(r.hidden && { hidden: true }),
+      items: r.gallery.map(
+        (g): GalleryItem => ({
+          id: g.id,
+          category: g.category,
+          title: g.title,
+          sub: g.sub,
+          image: g.image,
+          ...(g.hidden && { hidden: true }),
         }),
       ),
     },
-    reviews: reviewRows.map(
-      (r): ReviewRec => ({
-        id: r.id,
-        name: r.name,
-        format: r.format,
-        text: r.text,
-        made: r.made,
-        ...(r.hidden && { hidden: true }),
+    reviews: r.reviews.map(
+      (x): ReviewRec => ({
+        id: x.id,
+        name: x.name,
+        format: x.format,
+        text: x.text,
+        made: x.made,
+        ...(x.hidden && { hidden: true }),
       }),
     ),
     seo: s.seo!,
@@ -89,20 +106,23 @@ export async function loadSiteData(db: Exec): Promise<SiteData> {
 
 /* ---------- Запись ---------- */
 
-async function setSetting<K extends keyof Settings>(db: Exec, key: K, value: Settings[K]) {
-  await db.insert(settings).values({ key, value }).onConflictDoUpdate({ target: settings.key, set: { value } });
+/** несколько настроек одним запросом */
+async function setSettings(db: Exec, values: Partial<Settings>) {
+  const rows = Object.entries(values).map(([key, value]) => ({ key: key as keyof Settings, value }));
+  if (!rows.length) return;
+  await db.insert(settings).values(rows).onConflictDoUpdate({ target: settings.key, set: { value: sql`excluded.value` } });
 }
 
-async function getSetting<K extends keyof Settings>(db: Exec, key: K): Promise<Settings[K]> {
-  const [row] = await db.select().from(settings).where(eq(settings.key, key));
-  if (!row) throw new Error(`В базе нет настройки ${key}. Заполните её: npm run db:seed`);
-  return row.value as Settings[K];
+async function writeSessions(db: Exec, id: string, list: Session[]) {
+  await db.delete(masterclassSessions).where(eq(masterclassSessions.masterclassId, id));
+  if (list.length) {
+    await db.insert(masterclassSessions).values(list.map((x) => ({ masterclassId: id, start: x.start, end: x.end, seatsLeft: x.seatsLeft })));
+  }
 }
 
-async function writeMasterclass(db: Exec, mc: MasterclassRec, position: number) {
-  const row = {
-    id: mc.id,
-    position,
+/** создать или обновить мастер-класс; новый — в конец списка, у существующего место не меняется */
+async function writeMasterclass(db: Exec, mc: MasterclassRec, position?: number) {
+  const fields = {
     title: mc.title,
     desc: mc.desc,
     about: mc.about,
@@ -112,13 +132,15 @@ async function writeMasterclass(db: Exec, mc: MasterclassRec, position: number) 
     image: mc.image,
     hidden: mc.hidden === true,
   };
-  await db.insert(masterclasses).values(row).onConflictDoUpdate({ target: masterclasses.id, set: row });
-  await db.delete(masterclassSessions).where(eq(masterclassSessions.masterclassId, mc.id));
-  if (mc.sessions.length) {
-    await db
-      .insert(masterclassSessions)
-      .values(mc.sessions.map((x) => ({ masterclassId: mc.id, start: x.start, end: x.end, seatsLeft: x.seatsLeft })));
-  }
+  await db
+    .insert(masterclasses)
+    .values({
+      id: mc.id,
+      position: position ?? sql`(select coalesce(max(${masterclasses.position}) + 1, 0) from ${masterclasses})`,
+      ...fields,
+    })
+    .onConflictDoUpdate({ target: masterclasses.id, set: fields });
+  await writeSessions(db, mc.id, mc.sessions);
 }
 
 /** галерея и отзывы сохраняются целиком: заменяем все строки (внутри транзакции) */
@@ -146,25 +168,26 @@ export async function importSiteData(db: Exec, data: SiteData) {
   for (const [position, mc] of data.masterclasses.entries()) await writeMasterclass(db, mc, position);
   await replaceGalleryItems(db, data.gallery.items);
   await replaceReviews(db, data.reviews);
-  await setSetting(db, "tariffs", data.tariffs);
-  await setSetting(db, "family", data.family);
-  await setSetting(db, "certificateSums", data.certificateSums);
-  await setSetting(db, "coworking", data.coworking);
-  await setSetting(db, "galleryCategories", data.gallery.categories);
-  await setSetting(db, "seo", data.seo);
+  await setSettings(db, {
+    tariffs: data.tariffs,
+    family: data.family,
+    certificateSums: data.certificateSums,
+    coworking: data.coworking,
+    galleryCategories: data.gallery.categories,
+    seo: data.seo,
+  });
 }
 
 /* ---------- Репозиторий для админки ---------- */
 
 export function createDbRepo(db: Db): ContentRepo {
-  /** изменение в транзакции; в той же транзакции — копия всех данных в snapshots */
+  /** изменение в транзакции; в той же транзакции — копия всех данных в snapshots (и удаление старых копий) */
   async function write(fn: (tx: Tx) => Promise<unknown>) {
     await db.transaction(async (tx) => {
       await fn(tx);
-      await tx.insert(snapshots).values({ data: await loadSiteData(tx) });
-      await tx
-        .delete(snapshots)
-        .where(sql`${snapshots.id} not in (select ${snapshots.id} from ${snapshots} order by ${snapshots.id} desc limit ${SNAPSHOTS_KEPT})`);
+      const data = JSON.stringify(await loadSiteData(tx));
+      await tx.execute(sql`with added as (insert into snapshots (data) values (${data}::jsonb) returning id)
+        delete from snapshots where id <= (select id from added) - ${SNAPSHOTS_KEPT}`);
     });
   }
 
@@ -172,48 +195,51 @@ export function createDbRepo(db: Db): ContentRepo {
     demo: false,
     load: () => loadSiteData(db),
 
-    saveMasterclass: (mc) =>
-      write(async (tx) => {
-        const [cur] = await tx.select({ position: masterclasses.position }).from(masterclasses).where(eq(masterclasses.id, mc.id));
-        let position = cur?.position;
-        if (position === undefined) {
-          // новый мастер-класс — в конец списка
-          const [{ max }] = await tx.select({ max: sql<number | null>`max(${masterclasses.position})` }).from(masterclasses);
-          position = max === null ? 0 : Number(max) + 1;
-        }
-        await writeMasterclass(tx, mc, position);
-      }),
+    saveMasterclass: (mc) => write((tx) => writeMasterclass(tx, mc)),
 
     deleteMasterclass: (id) => write((tx) => tx.delete(masterclasses).where(eq(masterclasses.id, id))),
 
     reorderMasterclasses: (ids) =>
-      write(async (tx) => {
-        for (const [position, id] of ids.entries()) await tx.update(masterclasses).set({ position }).where(eq(masterclasses.id, id));
-      }),
+      write((tx) =>
+        tx.execute(sql`update ${masterclasses} m set position = v.ord - 1
+          from jsonb_array_elements_text(${JSON.stringify(ids)}::jsonb) with ordinality as v(id, ord)
+          where m.id = v.id`),
+      ),
 
     setMasterclassHidden: (id, hidden) => write((tx) => tx.update(masterclasses).set({ hidden }).where(eq(masterclasses.id, id))),
 
-    saveFamily: (family) => write((tx) => setSetting(tx, "family", family)),
+    saveFamily: (family) => write((tx) => setSettings(tx, { family })),
 
     savePrices: (p) =>
       write(async (tx) => {
-        for (const { id, price } of p.masterclasses) await tx.update(masterclasses).set({ price }).where(eq(masterclasses.id, id));
-        await setSetting(tx, "tariffs", p.tariffs);
-        await setSetting(tx, "family", { ...(await getSetting(tx, "family")), price: p.familyPrice });
-        await setSetting(tx, "certificateSums", p.certificateSums);
+        await tx.execute(sql`update ${masterclasses} m set price = (v->>'price')::int
+          from jsonb_array_elements(${JSON.stringify(p.masterclasses)}::jsonb) v
+          where m.id = v->>'id'`);
+        await setSettings(tx, { tariffs: p.tariffs, certificateSums: p.certificateSums });
+        await tx.execute(sql`update ${settings} set value = jsonb_set(value, '{price}', to_jsonb(${p.familyPrice}::int))
+          where key = 'family'`);
       }),
 
-    saveCoworking: (s) => write((tx) => setSetting(tx, "coworking", s)),
+    saveCoworking: (coworking) => write((tx) => setSettings(tx, { coworking })),
 
     saveGallery: (g) =>
       write(async (tx) => {
-        await setSetting(tx, "galleryCategories", g.categories);
+        await setSettings(tx, { galleryCategories: g.categories });
         await replaceGalleryItems(tx, g.items);
       }),
 
     saveReviews: (r) => write((tx) => replaceReviews(tx, r)),
 
-    saveSeo: (s) => write((tx) => setSetting(tx, "seo", s)),
+    saveSeo: (seo) => write((tx) => setSettings(tx, { seo })),
+
+    async listUploads() {
+      const rows = await db.select({ url: uploads.url }).from(uploads).orderBy(desc(uploads.createdAt));
+      return rows.map((r) => r.url);
+    },
+
+    async addUpload(url) {
+      await db.insert(uploads).values({ url }).onConflictDoNothing();
+    },
 
     async reset() {
       throw new Error("Сброс к исходным данным доступен только в демо-режиме");

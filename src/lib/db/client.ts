@@ -22,8 +22,10 @@ export function databaseUrl(kind: "pooled" | "direct" = "pooled") {
 export type Db = ReturnType<typeof createDb>;
 
 export function createDb(url: string) {
-  // prepare: false — пулер Supabase в transaction mode не поддерживает подготовленные запросы
-  const sql = postgres(url, { prepare: false, max: 5, idle_timeout: 20, connect_timeout: 10 });
+  // prepare: false — пулер Supabase в transaction mode не поддерживает подготовленные запросы.
+  // Новое подключение стоит ~0,5 с (TLS до Франкфурта), поэтому держим простаивающие подключения
+  // 5 минут, а не закрываем через 20 с. Если пулер закроет подключение сам, postgres.js откроет новое.
+  const sql = postgres(url, { prepare: false, max: 3, idle_timeout: 300, connect_timeout: 10 });
   return drizzle(sql, { schema });
 }
 

@@ -26,6 +26,9 @@ export interface ContentRepo {
   saveGallery(g: { categories: GalleryCategory[]; items: GalleryItem[] }): Promise<void>;
   saveReviews(r: ReviewRec[]): Promise<void>;
   saveSeo(s: Seo): Promise<void>;
+  /** загруженные через админку фото (Vercel Blob), новые первыми */
+  listUploads(): Promise<string[]>;
+  addUpload(url: string): Promise<void>;
   /** вернуть исходные данные (только в демо-режиме) */
   reset(): Promise<void>;
 }

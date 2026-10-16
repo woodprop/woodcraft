@@ -6,7 +6,7 @@ import { seedData as seed } from "./seedData";
 
 // Держим данные в globalThis: модули в dev перезагружаются (HMR),
 // а изменения из админки должны жить до перезапуска сервера.
-const g = globalThis as typeof globalThis & { __woodcraftDb?: SiteData };
+const g = globalThis as typeof globalThis & { __woodcraftDb?: SiteData; __woodcraftUploads?: string[] };
 const db = () => (g.__woodcraftDb ??= seed());
 
 const clone = <T,>(v: T): T => structuredClone(v);
@@ -61,6 +61,12 @@ export const mockRepo: ContentRepo = {
   },
   async saveSeo(s) {
     db().seo = clone(s);
+  },
+  async listUploads() {
+    return [...(g.__woodcraftUploads ?? [])];
+  },
+  async addUpload(url) {
+    g.__woodcraftUploads = [url, ...(g.__woodcraftUploads ?? []).filter((u) => u !== url)];
   },
   async reset() {
     g.__woodcraftDb = seed();

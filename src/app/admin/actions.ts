@@ -132,7 +132,10 @@ export async function uploadImage(form: FormData): Promise<Upload> {
   const file = form.get("file");
   if (!(file instanceof File)) return { ok: false, message: "Файл не получен" };
   try {
-    return await storeImage(file, repo.demo);
+    const res = await storeImage(file, repo.demo);
+    // фото из Blob запоминаем для «Выбрать из загруженных»; data URL (демо) и так лежит в данных
+    if (res.ok && !res.src.startsWith("data:")) await repo.addUpload(res.src);
+    return res;
   } catch (e) {
     console.error("Ошибка загрузки фото:", e);
     return { ok: false, message: "Не удалось загрузить фото. Попробуйте ещё раз" };
