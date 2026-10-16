@@ -14,6 +14,7 @@ import type {
   Session,
   Tariff,
 } from "@/lib/types";
+import { blobHost } from "@/lib/blobHost";
 import type { PricesInput } from "./repo";
 
 /** ключ — путь к полю ("sessions.2.start"), значение — текст ошибки */
@@ -23,8 +24,11 @@ export type Checked<T> = { ok: true; value: T } | { ok: false; errors: FieldErro
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 const DATE = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 const ID = /^[a-z0-9-]{1,60}$/;
-/** фото, загруженное в Vercel Blob (src/lib/admin/storage.ts) */
-const BLOB_SRC = /^https:\/\/[a-z0-9]+\.public\.blob\.vercel-storage\.com\/uploads\/[\w-]+\.(jpg|png|webp)$/i;
+/** фото, загруженное в наш store Vercel Blob (src/lib/admin/storage.ts) */
+function isBlobSrc(src: string) {
+  const host = blobHost();
+  return Boolean(host) && src.startsWith(`https://${host}/uploads/`) && /^https:\/\/[^/]+\/uploads\/[\w-]+\.(jpg|png|webp)$/.test(src);
+}
 /** загруженная картинка в демо-режиме (data URL) — не больше ~1,5 МБ */
 const MAX_DATA_URL = 2_000_000;
 
@@ -91,7 +95,7 @@ class Checker {
     const o = this.obj(v, path);
     const src = typeof o.src === "string" ? o.src : "";
     const local = /^\/images\/[\w\-/]+\.(jpe?g|png|webp|avif)$/i.test(src) && !src.includes("..");
-    const blob = BLOB_SRC.test(src);
+    const blob = isBlobSrc(src);
     const dataUrl =
       this.opts.allowDataUrl && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(src) && src.length <= MAX_DATA_URL;
     if (!local && !blob && !dataUrl) this.fail(path, "Выберите фото");

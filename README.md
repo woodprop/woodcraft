@@ -40,7 +40,7 @@ npm run build && npm start   # продакшен
 Подключение:
 
 1. Создать проект в Supabase (регион Frankfurt) и подключить его к проекту Vercel через Marketplace — переменные `POSTGRES_URL*` пропишутся сами. Либо скопировать строки подключения в `.env.local` вручную (см. `.env.example`).
-2. В Vercel → Storage создать **публичный** Blob store и подключить к проекту (`BLOB_READ_WRITE_TOKEN`).
+2. В Vercel → Storage создать **публичный** Blob store и подключить к проекту (вкладка store → Projects). Vercel задаст `BLOB_STORE_ID`, токен доступа SDK получает сам (OIDC); локально его даёт `vercel env pull` — он живёт около 12 часов, потом команду нужно повторить.
 3. Создать таблицы и заполнить их исходными данными из JSON:
 
 ```bash
