@@ -5,8 +5,8 @@ import { useState } from "react";
 import { ContactFields, SendError } from "@/components/forms/Fields";
 import { useLeadForm } from "@/components/forms/useLeadForm";
 import { useDict } from "@/components/providers/DictProvider";
-import { nextDays } from "@/lib/format";
-import type { Tariff } from "@/lib/types";
+import { coworkingDays } from "@/lib/schedule";
+import type { CoworkingSchedule, Tariff } from "@/lib/types";
 import { ModalFrame, Opt, ms as s } from "./ModalFrame";
 
 function todayIso() {
@@ -16,27 +16,33 @@ function todayIso() {
 
 export function CoworkingModal({
   tariffs,
-  times,
-  days: dayCount,
+  schedule,
   initialTariff,
 }: {
   tariffs: Tariff[];
-  times: string[];
-  days: number;
+  schedule: CoworkingSchedule;
   initialTariff: string | null;
 }) {
   const dict = useDict();
   const d = dict.modal.cw;
-  const [days] = useState(() => nextDays(todayIso(), dayCount));
-  const [tIdx, setT] = useState(() => Math.max(0, tariffs.findIndex((x) => x.id === (initialTariff ?? "2h"))));
-  const [dIdx, setD] = useState(0);
-  const [hIdx, setH] = useState(Math.min(4, times.length - 1));
+  const [days] = useState(() => coworkingDays(schedule, todayIso()));
+  // по умолчанию — тариф, выбранный на сайте, иначе первый почасовой без выделения
+  const [tIdx, setT] = useState(() => {
+    const i = tariffs.findIndex((x) => x.id === initialTariff);
+    return Math.max(0, i >= 0 ? i : tariffs.findIndex((x) => !x.fullDay && !x.highlight));
+  });
+  const [dIso, setD] = useState(() => days.find((x) => !x.closed)?.iso ?? "");
+  const [time, setTime] = useState<string | null>(null);
   const [first, setFirst] = useState(false);
 
   const tariff = tariffs[tIdx];
-  const fullDay = tariff.id === "day";
-  const day = days[dIdx];
-  const summary = `${day.wd}, ${day.label} · ${fullDay ? d.fullDay : `${times[hIdx]} · ${tariff.label}`}`;
+  const fullDay = !!tariff.fullDay;
+  const day = days.find((x) => x.iso === dIso && !x.closed);
+  const times = day?.times ?? [];
+  // выбранное время недоступно в этот день — берём пятый слот (вечер), как в макете
+  const hour = time && times.includes(time) ? time : times[Math.min(4, times.length - 1)];
+  const when = day ? `${day.wd}, ${day.label}` : "день согласуем";
+  const summary = `${when} · ${fullDay ? d.fullDay : hour ? `${hour} · ${tariff.label}` : tariff.label}`;
 
   const form = useLeadForm("coworking", (data) => ({
     fields: [
@@ -47,7 +53,7 @@ export function CoworkingModal({
     ],
     summary: [
       ["Формат", `Коворкинг · ${tariff.label}`],
-      ["Когда", fullDay ? `${day.wd}, ${day.label} · весь день` : `${day.wd}, ${day.label} · ${times[hIdx]}`],
+      ["Когда", fullDay ? `${when} · весь день` : `${when}${hour ? ` · ${hour}` : ""}`],
       ["Стоимость", `${tariff.price} ₾${first ? " + инструктаж" : ""}`],
     ],
   }));
@@ -95,9 +101,10 @@ export function CoworkingModal({
 
         <fieldset className="fs">
           <legend>{d.day}</legend>
+          {!day && <p className="txt">{d.noDays}</p>}
           <div className={`${s.opts} ${s.days}`}>
-            {days.map((x, k) => (
-              <Opt key={x.iso} on={k === dIdx} onClick={() => setD(k)} className={s.sm}>
+            {days.map((x) => (
+              <Opt key={x.iso} on={x.iso === dIso} onClick={() => setD(x.iso)} className={s.sm} disabled={!!x.closed}>
                 <span className="mono">{x.wd}</span>
                 <b>{x.label}</b>
               </Opt>
@@ -105,12 +112,13 @@ export function CoworkingModal({
           </div>
         </fieldset>
 
-        {!fullDay && (
+        {!fullDay && day && (
           <fieldset className="fs">
             <legend>{d.start}</legend>
+            {!times.length && <p className="txt">{d.noTimes}</p>}
             <div className={`${s.opts} ${s.times}`}>
-              {times.map((x, k) => (
-                <Opt key={x} on={k === hIdx} onClick={() => setH(k)} className={s.sm}>
+              {times.map((x) => (
+                <Opt key={x} on={x === hour} onClick={() => setTime(x)} className={s.sm}>
                   <b>{x}</b>
                 </Opt>
               ))}

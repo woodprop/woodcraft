@@ -5,10 +5,11 @@ import { Hl } from "@/components/ui/Hl";
 import { Check } from "@/components/ui/Icons";
 import { Photo } from "@/components/ui/Photo";
 import { book } from "@/lib/links";
-import type { Contacts } from "@/lib/types";
+import { fillPrices } from "@/lib/pricing";
+import type { Contacts, Prices } from "@/lib/types";
 import s from "./Hero.module.css";
 
-export function Hero({ contacts }: { contacts: Contacts }) {
+export function Hero({ contacts, prices }: { contacts: Contacts; prices: Prices }) {
   const d = getDict().hero;
   return (
     <div className={s.wrap}>
@@ -30,7 +31,7 @@ export function Hero({ contacts }: { contacts: Contacts }) {
               <div className={s.offers}>
                 {d.offers.map((o) => (
                   <p className="lead" key={o.b}>
-                    <b>{o.b}</b>
+                    <b>{fillPrices(o.b, prices)}</b>
                     {o.t}
                   </p>
                 ))}

@@ -4,9 +4,11 @@ import { Block } from "@/components/ui/Block";
 import { Hl } from "@/components/ui/Hl";
 import { Photo } from "@/components/ui/Photo";
 import { book } from "@/lib/links";
+import { fillPrices } from "@/lib/pricing";
+import type { Prices } from "@/lib/types";
 import s from "./Family.module.css";
 
-export function Family() {
+export function Family({ prices }: { prices: Prices }) {
   const d = getDict().family;
   return (
     <Block id="family" tab={d.tab} offset={0.385}>
@@ -32,7 +34,7 @@ export function Family() {
             <div>
               <dt className="mono">{d.priceLabel}</dt>
               <dd>
-                <b>{d.price}</b>
+                <b>{fillPrices(d.price, prices)}</b>
                 {d.priceNote}
               </dd>
             </div>

@@ -30,7 +30,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang={defaultLocale} className={`${unbounded.variable} ${onest.variable} ${jetbrains.variable}`}>
+    // data-scroll-behavior: Next отключает плавную прокрутку на время переходов между страницами
+    <html lang={defaultLocale} data-scroll-behavior="smooth" className={`${unbounded.variable} ${onest.variable} ${jetbrains.variable}`}>
       <body>
         <DictProvider dict={dict}>{children}</DictProvider>
       </body>

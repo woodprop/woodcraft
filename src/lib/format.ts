@@ -49,3 +49,15 @@ export function plural(n: number, forms: [string, string, string]) {
   if (b === 1) return forms[0];
   return forms[2];
 }
+
+/** Длительность в часах → { long: "2,5 часа", short: "2,5 ч" } */
+export function formatHours(h: number) {
+  const num = String(h).replace(".", ",");
+  const word = Number.isInteger(h) ? plural(h, ["час", "часа", "часов"]) : "часа";
+  return { long: `${num} ${word}`, short: `${num} ч` };
+}
+
+/** Сегодняшняя дата в Тбилиси (UTC+4, без перехода на летнее время) — "YYYY-MM-DD" */
+export function tbilisiToday(now = Date.now()) {
+  return new Date(now + 4 * 3600_000).toISOString().slice(0, 10);
+}

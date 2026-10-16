@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Footer } from "@/components/layout/Footer";
 import { ModalHost } from "@/components/modals/ModalHost";
@@ -18,18 +19,28 @@ import { Reviews } from "@/components/sections/Reviews";
 import { Why } from "@/components/sections/Why";
 import { getContent } from "@/lib/content";
 
+export async function generateMetadata(): Promise<Metadata> {
+  const { seo } = await getContent("ru");
+  return {
+    title: seo.title,
+    description: seo.description,
+    // openGraph из layout заменяется целиком, поэтому повторяем общие поля
+    openGraph: { title: seo.title, description: seo.description, type: "website", locale: "ru_RU", images: ["/images/hero.jpg"] },
+  };
+}
+
 export default async function Home() {
   const c = await getContent("ru");
   return (
     <BookingProvider>
       <main className="page">
-        <Hero contacts={c.contacts} />
-        <Formats />
+        <Hero contacts={c.contacts} prices={c.prices} />
+        <Formats prices={c.prices} />
         <Masterclasses items={c.masterclasses} />
         <Why />
         <Coworking tariffs={c.tariffs} />
         <Equipment />
-        <Family />
+        <Family prices={c.prices} />
         <GiftsCorporate />
         <Gallery gallery={c.gallery} />
         <Reviews items={c.reviews} />
@@ -37,10 +48,10 @@ export default async function Home() {
         <How />
         <Faq items={c.faq} contacts={c.contacts} />
         <Request contacts={c.contacts} />
-        <Footer contacts={c.contacts} />
+        <Footer contacts={c.contacts} schedule={c.coworking} />
       </main>
       <Suspense fallback={null}>
-        <ModalHost data={{ masterclasses: c.masterclasses, tariffs: c.tariffs, booking: c.booking, contacts: c.contacts }} />
+        <ModalHost data={{ masterclasses: c.masterclasses, tariffs: c.tariffs, booking: c.booking, contacts: c.contacts, coworking: c.coworking, prices: c.prices }} />
       </Suspense>
     </BookingProvider>
   );

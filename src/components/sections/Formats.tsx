@@ -3,12 +3,14 @@ import { getDict } from "@/i18n";
 import { Block } from "@/components/ui/Block";
 import { IcBench, IcBoard, IcClock, IcGift, IcPeople } from "@/components/ui/Icons";
 import { book } from "@/lib/links";
+import { fillPrices } from "@/lib/pricing";
+import type { Prices } from "@/lib/types";
 import s from "./Formats.module.css";
 
 const icons = [[IcBoard, IcClock], [IcBench], [IcGift, IcPeople]];
 const hrefs = ["#masterclasses", book.coworking(), "#family"];
 
-export function Formats() {
+export function Formats({ prices }: { prices: Prices }) {
   const d = getDict().formats;
   return (
     <Block id="formats" tab={d.tab} offset={0} first>
@@ -31,7 +33,7 @@ export function Formats() {
                 ))}
               </div>
               <div className={s.body}>
-                <span className="mono acc">{it.meta}</span>
+                <span className="mono acc">{fillPrices(it.meta, prices)}</span>
                 <h3 className="h3">{it.title}</h3>
                 <hr className="dots" />
                 <p className="txt">{it.text}</p>

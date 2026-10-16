@@ -3,7 +3,8 @@ import { getDict } from "@/i18n";
 import { Facebook, Instagram, Pin, Telegram } from "@/components/ui/Icons";
 import { LogoMark } from "@/components/ui/Logo";
 import { social } from "@/lib/links";
-import type { Contacts } from "@/lib/types";
+import { hoursLines } from "@/lib/schedule";
+import type { Contacts, CoworkingSchedule } from "@/lib/types";
 import s from "./Footer.module.css";
 
 /** Плашка-заглушка для данных, которые ещё не заданы в settings.json */
@@ -11,7 +12,7 @@ function Val({ v }: { v: string }) {
   return v.startsWith("[") ? <span className="todo">{v}</span> : <>{v}</>;
 }
 
-export function Footer({ contacts }: { contacts: Contacts }) {
+export function Footer({ contacts, schedule }: { contacts: Contacts; schedule: CoworkingSchedule }) {
   const dict = getDict();
   const d = dict.footer;
   const mapInner = (
@@ -73,12 +74,9 @@ export function Footer({ contacts }: { contacts: Contacts }) {
 
             <div className={s.col}>
               <span className="mono">{d.hours}</span>
-              <p>
-                {d.weekdays} <Val v={contacts.hours.weekdays} />
-              </p>
-              <p>
-                {d.weekends} <Val v={contacts.hours.weekends} />
-              </p>
+              {hoursLines(schedule.week).map(([days, time]) => (
+                <p key={days}>{`${days} ${time}`}</p>
+              ))}
             </div>
 
             {contacts.mapUrl ? (

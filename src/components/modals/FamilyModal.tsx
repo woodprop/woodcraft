@@ -8,21 +8,31 @@ import { useDict } from "@/components/providers/DictProvider";
 import { Minus, Plus } from "@/components/ui/Icons";
 import { t } from "@/i18n";
 import { formatDay, formatRange } from "@/lib/format";
-import type { Option, Session } from "@/lib/types";
+import { fillPrices } from "@/lib/pricing";
+import type { Option, Prices, Session } from "@/lib/types";
 import { ModalFrame, Opt, ms as s } from "./ModalFrame";
 
 const MAX_PAIRS = 3;
 
-export function FamilyModal({ products, sessions }: { products: Option[]; sessions: Session[] }) {
+export function FamilyModal({
+  products,
+  sessions,
+  price,
+  prices,
+}: {
+  products: Option[];
+  sessions: Session[];
+  price: number;
+  prices: Prices;
+}) {
   const dict = useDict();
   const d = dict.modal.family;
   const [prod, setProd] = useState(0);
   const [sel, setSel] = useState(0);
   const [n, setN] = useState(1);
 
-  const price = products[prod].price ?? 0;
   const session = sessions[sel];
-  const when = `${formatDay(session.start)} · ${formatRange(session.start, session.end)}`;
+  const when = session ? `${formatDay(session.start)} · ${formatRange(session.start, session.end)}` : "дату согласуем";
 
   const form = useLeadForm("family", (data) => ({
     fields: [
@@ -52,7 +62,7 @@ export function FamilyModal({ products, sessions }: { products: Option[]; sessio
         {d.facts.map(([k, v]) => (
           <div key={k}>
             <dt className="mono">{k}</dt>
-            <dd>{v}</dd>
+            <dd>{fillPrices(v, prices)}</dd>
           </div>
         ))}
       </dl>
@@ -73,7 +83,7 @@ export function FamilyModal({ products, sessions }: { products: Option[]; sessio
             {products.map((x, k) => (
               <Opt key={x.id} on={k === prod} onClick={() => setProd(k)}>
                 <b>{x.label}</b>
-                <span className="mono">{t(d.perPair, { price: x.price ?? 0 })}</span>
+                <span className="mono">{t(d.perPair, { price })}</span>
               </Opt>
             ))}
           </div>
@@ -81,6 +91,7 @@ export function FamilyModal({ products, sessions }: { products: Option[]; sessio
 
         <fieldset className="fs">
           <legend>{d.dates}</legend>
+          {!sessions.length && <p className="txt">{d.noDates}</p>}
           <div className={s.opts}>
             {sessions.map((x, k) => (
               <Opt key={x.start} on={k === sel} onClick={() => setSel(k)}>

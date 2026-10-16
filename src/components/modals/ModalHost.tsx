@@ -13,7 +13,7 @@ import { FamilyModal } from "./FamilyModal";
 import { MasterclassModal } from "./MasterclassModal";
 import { SuccessModal } from "./SuccessModal";
 
-export type ModalData = Pick<Content, "masterclasses" | "tariffs" | "booking" | "contacts">;
+export type ModalData = Pick<Content, "masterclasses" | "tariffs" | "booking" | "contacts" | "coworking" | "prices">;
 
 type Shown = { kind: ModalKind; id: string | null; tariff: string | null };
 
@@ -53,13 +53,13 @@ function Content({ shown, data }: { shown: Shown; data: ModalData }) {
     case "masterclass":
       return <MasterclassModal items={data.masterclasses} initialId={shown.id} />;
     case "coworking":
-      return <CoworkingModal tariffs={data.tariffs} times={data.booking.coworkingTimes} days={data.booking.coworkingDays} initialTariff={shown.tariff} />;
+      return <CoworkingModal tariffs={data.tariffs} schedule={data.coworking} initialTariff={shown.tariff} />;
     case "certificate":
       return <CertificateModal masterclasses={data.masterclasses} sums={data.booking.certificateSums} formats={data.booking.certificateFormats} />;
     case "corporate":
       return <CorporateModal sizes={data.booking.corporateSizes} products={data.booking.corporateProducts} />;
     case "family":
-      return <FamilyModal products={data.booking.familyProducts} sessions={data.booking.familySessions} />;
+      return <FamilyModal products={data.booking.familyProducts} sessions={data.booking.familySessions} price={data.booking.familyPrice} prices={data.prices} />;
     case "success":
       return <SuccessModal instagram={data.contacts.instagram} />;
   }

@@ -107,6 +107,7 @@ export function MasterclassModal({ items, initialId }: { items: Masterclass[]; i
 
         <fieldset className="fs">
           <legend>{d.dates}</legend>
+          {!mc.sessions.length && <p className="txt">{d.noDates}</p>}
           <div className={s.opts}>
             {mc.sessions.map((x, k) => (
               <Opt key={x.start} on={k === sel} onClick={() => setSel(k)} disabled={x.seatsLeft === 0}>
