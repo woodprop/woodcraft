@@ -5,6 +5,7 @@ import type { Update } from "grammy/types";
 import { botConfig } from "./config";
 import { coworking, coworkingSteps } from "./coworking";
 import { gallery, gallerySteps } from "./gallery";
+import { masterclassSteps, masterclasses } from "./masterclasses";
 import { mainScreen, menu } from "./menu";
 import { priceSteps, prices } from "./prices";
 import { reviewSteps, reviews } from "./reviews";
@@ -15,7 +16,7 @@ import { show, withNote } from "./ui";
 // Telegram-бот для управления контентом сайта. Получает сообщения через webhook (src/app/api/telegram/route.ts).
 // Меняет те же данные, что и /admin, через то же хранилище и те же проверки (src/lib/admin).
 
-const steps: Steps = { ...scheduleSteps, ...gallerySteps, ...reviewSteps, ...priceSteps, ...coworkingSteps };
+const steps: Steps = { ...masterclassSteps, ...scheduleSteps, ...gallerySteps, ...reviewSteps, ...priceSteps, ...coworkingSteps };
 
 function createBot(cfg: NonNullable<ReturnType<typeof botConfig>>) {
   const bot = new Bot<BotContext>(cfg.token, { client: { apiRoot: cfg.apiRoot } });
@@ -64,7 +65,8 @@ function createBot(cfg: NonNullable<ReturnType<typeof botConfig>>) {
     }
   });
 
-  bot.use(menu, schedule, gallery, reviews, prices, coworking);
+  // masterclasses раньше gallery: фото на шаге «фото мастер-класса» не должно уйти в галерею
+  bot.use(menu, schedule, masterclasses, gallery, reviews, prices, coworking);
 
   // текст — ответ на текущий шаг диалога
   bot.on("message:text", async (ctx) => {

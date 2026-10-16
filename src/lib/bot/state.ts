@@ -9,7 +9,14 @@ import { botSessions, botUpdates } from "@/lib/db/schema";
  * Шаг многошагового диалога: чего бот ждёт от админа следующим сообщением
  * и что уже введено. Хранится между запросами — функция на Vercel ничего не помнит.
  */
+/** Поле карточки мастер-класса */
+export type McField = "title" | "desc" | "about" | "hours" | "price" | "capacity" | "image";
+/** Новый мастер-класс: что уже введено */
+export type McDraft = { title?: string; desc?: string; about?: string; hours?: number; price?: number; capacity?: number; src?: string };
+
 export type Flow =
+  | { step: "mc.new"; field: McField | "publish"; draft: McDraft }
+  | { step: "mc.edit"; k: string; field: McField }
   | { step: "sc.time"; k: string; date: string }
   | { step: "sc.seats"; k: string; start: string; end: string }
   | { step: "g.photo" }

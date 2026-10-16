@@ -13,11 +13,12 @@ import { byRef, cancelKb, stale, datePicker, esc, numbersKb, pack, parseNumber, 
 // Расписание: даты мастер-классов и семейного занятия, свободные места, скрыть/показать МК.
 // Кнопки: sc — список; sc:<k> — занятие (k — ref(id) мастер-класса или "fam");
 // ss:<k>:<начало> — одна дата; f:… — кнопки внутри диалога добавления даты.
+// Карточка мастер-класса (создать, изменить, удалить) — в masterclasses.ts.
 
 const FAMILY = "fam";
 
 /** Мастер-класс или семейное занятие: у обоих есть даты со свободными местами */
-type Target = {
+export type Target = {
   k: string;
   title: string;
   capacity: number;
@@ -28,7 +29,7 @@ type Target = {
   save(ctx: BotContext, sessions: Session[]): Promise<boolean>;
 };
 
-function target(data: SiteData, k: string): Target | undefined {
+export function target(data: SiteData, k: string): Target | undefined {
   if (k === FAMILY) {
     const f = data.family;
     return {
@@ -61,15 +62,16 @@ const upcoming = (list: Session[]) =>
 
 /* ---------- Экраны ---------- */
 
-function listScreen(data: SiteData): Screen {
+export function listScreen(data: SiteData): Screen {
   const kb = new InlineKeyboard();
   for (const m of data.masterclasses) kb.text(`${m.hidden ? "🙈 " : ""}${m.title} · ${upcoming(m.sessions).length}`, `sc:${ref(m.id)}`).row();
   kb.text(`👨‍👧 Семейный МК · ${upcoming(data.family.sessions).length}`, `sc:${FAMILY}`).row();
+  kb.text("➕ Новый мастер-класс", "mc:new").row();
   kb.text("← Меню", "m");
   return { text: "📅 <b>Расписание</b>\nВыберите занятие. Число — сколько впереди дат.\n🙈 — скрыт с сайта.", kb };
 }
 
-function targetScreen(t: Target): Screen {
+export function targetScreen(t: Target): Screen {
   const list = upcoming(t.sessions);
   const lines = [
     `<b>${esc(t.title)}</b>${t.hidden ? " · 🙈 скрыт с сайта" : ""}`,
@@ -82,7 +84,10 @@ function targetScreen(t: Target): Screen {
   const kb = new InlineKeyboard();
   for (const s of list.slice(0, 40)) kb.text(`${formatDateTime(s.start)} · ${s.seatsLeft} св.`, `ss:${t.k}:${pack(s.start)}`).row();
   kb.text("➕ Добавить дату", `sc:${t.k}:add:0`).row();
-  if (t.mcId) kb.text(t.hidden ? "👁 Показать на сайте" : "🙈 Скрыть с сайта", `sc:${t.k}:${t.hidden ? "show" : "hide"}`).row();
+  if (t.mcId) {
+    kb.text(t.hidden ? "👁 Показать на сайте" : "🙈 Скрыть с сайта", `sc:${t.k}:${t.hidden ? "show" : "hide"}`).row();
+    kb.text("✏️ Карточка", `mc:${t.k}`).text("🗑 Удалить МК", `mc:${t.k}:del`).row();
+  }
   kb.text("← К списку", "sc");
   return { text: lines.join("\n"), kb };
 }
